@@ -41,7 +41,12 @@ fi
 ##echo "fd00::/8" >> $network_table
 #postmap $network_table
 #postconf -e mynetworks=hash:$network_table
-postconf -e "mynetworks=127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+
+if [[ ! -z "$MYNETWORKS" ]]; then
+        postconf -e relayhost=$MYNETWORKS
+else
+        postconf -e "mynetworks=127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+fi
 
 # Split with space
 if [[ ! -z "$ALLOWED_SENDER_DOMAINS" ]]; then
