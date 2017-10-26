@@ -43,7 +43,7 @@ fi
 #postconf -e mynetworks=hash:$network_table
 
 if [[ ! -z "$MYNETWORKS" ]]; then
-        postconf -e relayhost=$MYNETWORKS
+        postconf -e mynetworks=$MYNETWORKS
 else
         postconf -e "mynetworks=127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
 fi
