@@ -76,6 +76,14 @@ If your end server requires you to authenticate with username/password, add them
 docker run --rm --name postfix -e RELAYHOST=mail.google.com -e RELAYHOST_USERNAME=hello@gmail.com -e RELAYHOST_PASSWORD=world -p 1587:587 boky/postfix
 ```
 
+## `RELAYHOST_USE_TLS`
+
+If your relayhost uses TLS set this to 'yes' to turn on TLS for postfix
+
+### `POSTFIX_EXTRAS_SETTINGS`
+
+Any additional settings can be passed directly to config here, for example: POSTFIX_EXTRAS_SETTINGS=smtp_use_tls=yes smtp_enforce_tls=yes
+
 ### `MYNETWORKS`
 
 This implementation is meant for private installations -- so that when you configure your services using _docker compose_
