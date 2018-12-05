@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "******************************"
 echo "**** POSTFIX STARTING UP *****"
@@ -20,14 +20,15 @@ postconf -e mydestination=
 # Don't relay for any domains
 postconf -e relay_domains=
 
-# As this is a server-based service, allow any message size -- we hope the sender knows
-# what he is doing
-postconf -e "message_size_limit=0"
-
 # Reject invalid HELOs
 postconf -e smtpd_delay_reject=yes
 postconf -e smtpd_helo_required=yes
 postconf -e "smtpd_helo_restrictions=permit_mynetworks,reject_invalid_helo_hostname,permit"
+
+# TLS settings
+postconf -e "smtp_tls_security_level=verify"
+postconf -e "smtp_tls_note_starttls_offer=no"
+postconf -e "smtp_tls_CApath=/etc/ssl/certs"
 
 # Set up host name
 if [ ! -z "$HOSTNAME" ]; then
@@ -41,9 +42,15 @@ if [ ! -z "$RELAYHOST" ]; then
 	echo -n "- Forwarding all emails to $RELAYHOST"
 	postconf -e relayhost=$RELAYHOST
 
+  if [ ! -z "$RELAYHOST_USE_TLS" ] && [ "$RELAYHOST_USE_TLS" == "yes" ]; then
+    echo " using TLS"
+    postconf -e "smtp_use_tls=yes"
+  fi
+
 	if [ -n "$RELAYHOST_USERNAME" ] && [ -n "$RELAYHOST_PASSWORD" ]; then
 		echo " using username $RELAYHOST_USERNAME."
 		echo "$RELAYHOST $RELAYHOST_USERNAME:$RELAYHOST_PASSWORD" >> /etc/postfix/sasl_passwd
+    [ -f "/etc/postfix/sasl_passwd.db" ] && rm "/etc/postfix/sasl_passwd.db"
 		postmap hash:/etc/postfix/sasl_passwd
 		postconf -e "smtp_sasl_auth_enable=yes"
 		postconf -e "smtp_sasl_password_maps=hash:/etc/postfix/sasl_passwd"
@@ -63,6 +70,23 @@ if [ ! -z "$MYNETWORKS" ]; then
 	postconf -e mynetworks=$MYNETWORKS
 else
 	postconf -e "mynetworks=127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+fi
+
+# Setup Attachment Size Limit
+if [ ! -z "$RELAYHOST_ATTACHMENT_SIZE" ]; then
+  echo "- set Message Attachment Limit to $RELAYHOST_ATTACHMENT_SIZE bytes"
+  postconf -e "message_size_limit=$RELAYHOST_ATTACHMENT_SIZE"
+else
+  # As this is a server-based service, allow any message size -- we hope the sender knows
+  # what he is doing
+  postconf -e "message_size_limit=0"
+fi
+
+if [ ! -z "${POSTFIX_EXTRAS_SETTINGS}" ]; then
+  for item in ${POSTFIX_EXTRAS_SETTINGS}; do
+    echo " - set extra postfix setting ${item}"
+    postconf -e "${item}"
+  done
 fi
 
 # Split with space
@@ -95,7 +119,6 @@ fi
 # Since we are behind closed doors, let's just permit all relays.
 postconf -e "smtpd_relay_restrictions=permit"
 
-
 # Use 587 (submission)
 sed -i -r -e 's/^#submission/submission/' /etc/postfix/master.cf
 
@@ -111,4 +134,3 @@ fi
 
 echo "- Staring rsyslog and postfix"
 exec supervisord -c /etc/supervisord.conf
-
