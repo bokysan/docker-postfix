@@ -1,0 +1,8 @@
+version: "3.7"
+services:
+  smtp-relay:
+    build: .
+    env_file:
+      - "./sample.env"
+    expose:
+      - "25"
