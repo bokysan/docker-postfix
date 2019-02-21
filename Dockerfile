@@ -33,6 +33,7 @@ RUN        true && \
            apk add --no-cache opendkim && \
            apk add --no-cache ca-certificates tzdata supervisor rsyslog && \
            apk add --no-cache --upgrade musl musl-utils && \
+           apk add --no-cache --upgrade  cyrus-sasl cyrus-sasl-plain && \
            (rm "/tmp/"* 2>/dev/null || true) && (rm -rf /var/cache/apk/* 2>/dev/null || true)
 
 # Set up configuration
