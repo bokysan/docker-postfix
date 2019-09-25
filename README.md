@@ -138,6 +138,10 @@ Example:
 docker run --rm --name postfix -e "ALLOWED_SENDER_DOMAINS=example.com example.org" -e "MASQUERADED_DOMAINS=example.com" -p 1587:587 boky/postfix
 ```
 
+### `HEADER_CHECKS`
+
+Each message header line is compared against a pre-configured list of patterns. When a match is found the corresponding action is executed. Set to a non-empty string (usually "1" or "yes") enable.
+
 ## `DKIM`
 
 **This image is equiped with support for DKIM.** If you want to use DKIM you will need to generate DKIM keys yourself. 

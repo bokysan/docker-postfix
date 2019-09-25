@@ -40,6 +40,7 @@ RUN        true && \
 COPY       supervisord.conf /etc/supervisord.conf
 COPY       rsyslog.conf /etc/rsyslog.conf
 COPY       opendkim.conf /etc/opendkim/opendkim.conf
+COPY       header_checks /etc/header_checks
 COPY       run.sh /run.sh
 COPY       opendkim.sh /opendkim.sh
 RUN        chmod +x /run.sh /opendkim.sh

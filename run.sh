@@ -195,9 +195,15 @@ else
 fi
 
 if [ ! -z "$MASQUERADED_DOMAINS" ]; then
-        echo -en "‣ $notice Setting up address masquerading: ${emphasis}$MASQUERADED_DOMAINS${reset}"
+        echo -e "‣ $notice Setting up address masquerading: ${emphasis}$MASQUERADED_DOMAINS${reset}"
         postconf -e "masquerade_domains = $MASQUERADED_DOMAINS"
         postconf -e "local_header_rewrite_clients = static:all"
+fi
+
+if [ ! -z "$HEADER_CHECKS" ]; then
+		echo -e "‣ $notice Setting header_checks"
+		postconf -e smtp_header_checks="regexp:/etc/header_checks"
+		
 fi
 
 DKIM_ENABLED=
