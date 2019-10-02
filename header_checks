@@ -1,9 +1,9 @@
 # Sample For Dropping Headers: 	
-#/^Header: IfContains/ 	      IGNORE
+#/^Header: IfContains/        IGNORE
 /^Received:.*with ESMTPSA/    IGNORE
 /^Received:.*with ESMTPS/     IGNORE
 /^Received:.*with SMTP/       IGNORE
-/^Received:/ 	              IGNORE
+/^Received:/                  IGNORE
 /^X-Originating-IP:/          IGNORE
 /^X-Mailer:/                  IGNORE
 /^X-PHP-Originating-Script:/  IGNORE

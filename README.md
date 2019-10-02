@@ -140,7 +140,12 @@ docker run --rm --name postfix -e "ALLOWED_SENDER_DOMAINS=example.com example.or
 
 ### `HEADER_CHECKS`
 
-Each message header line is compared against a pre-configured list of patterns. When a match is found the corresponding action is executed. Set to a non-empty string (usually "1" or "yes") enable.
+Each message header line is compared against a pre-configured list of patterns. When a match is found the corresponding action is executed. The default patterns can be found in the `header_checks` file. Simply append new or delete unwanted patterns. Set to a non-empty string (usually "1" or "yes") to enable.
+
+Example:
+```
+docker run --rm --name postfix -e "HEADER_CHECKS="yes" example.org" -p 1587:587 boky/postfix
+```
 
 ## `DKIM`
 
