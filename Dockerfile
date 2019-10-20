@@ -41,8 +41,7 @@ COPY       supervisord.conf /etc/supervisord.conf
 COPY       rsyslog.conf /etc/rsyslog.conf
 COPY       opendkim.conf /etc/opendkim/opendkim.conf
 COPY       smtp_header_checks /etc/postfix/smtp_header_checks
-COPY       run.sh /run.sh
-COPY       opendkim.sh /opendkim.sh
+COPY       commons.sh run.sh opendkim.sh /
 RUN        chmod +x /run.sh /opendkim.sh
 
 # Set up volumes
