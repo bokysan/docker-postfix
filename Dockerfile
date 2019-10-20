@@ -20,6 +20,8 @@ ENV RELAYHOST_TLS_LEVEL=
 ENV MYNETWORKS=127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
 # Allow any sender domains
 ENV ALLOWED_SENDER_DOMAINS=
+# Don't allow blank value for ALLOWED_SENDER_DOMAINS
+ENV ALLOW_EMPTY_SENDER_DOMAINS=
 # Attachments size. 0 means unlimited. Usually needs to be set if your relay host has an attachment size limit
 ENV MESSAGE_SIZE_LIMIT=
 # Enable additional debugging for connections to postfix

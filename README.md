@@ -44,6 +44,7 @@ $RELAYHOST_USERNAME = An (optional) username for the relay server
 $RELAYHOST_PASSWORD = An (optional) login password for the relay server
 $MYNETWORKS = allow domains from per Network ( default 127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 )
 $ALLOWED_SENDER_DOMAINS = domains sender domains
+$ALLOW_EMPTY_SENDER_DOMAINS = if value is set (i.e: "true"), $ALLOWED_SENDER_DOMAINS can be unset
 $MASQUERADED_DOMAINS = domains where you want to masquerade internal hosts
 
 ```

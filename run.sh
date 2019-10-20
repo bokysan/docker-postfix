@@ -88,7 +88,7 @@ if [ ! -z "$MESSAGE_SIZE_LIMIT" ]; then
 	echo  -e "‣ $notice Restricting message_size_limit to: ${emphasis}$MESSAGE_SIZE_LIMIT bytes${reset}"
 	postconf -e "message_size_limit=$MESSAGE_SIZE_LIMIT"
 else
-	# As this is a server-based service, allow any message size -- we hope the 
+	# As this is a server-based service, allow any message size -- we hope the
 	# sender knows what he is doing.
 	echo  -e "‣ $info Using ${emphasis}unlimited${reset} message size."
 	postconf -e "message_size_limit=0"
@@ -187,7 +187,7 @@ if [ ! -z "$ALLOWED_SENDER_DOMAINS" ]; then
 
 	# Since we are behind closed doors, let's just permit all relays.
 	postconf -e "smtpd_relay_restrictions=permit"
-else
+elif [ -z "$ALLOW_EMPTY_SENDER_DOMAINS" ]; then
 	echo -e "ERROR: You need to specify ALLOWED_SENDER_DOMAINS otherwise Postfix will not run!"
 	exit 1
 fi
