@@ -1,4 +1,5 @@
-FROM alpine:latest
+ARG ALPINE_VERSION=latest
+FROM alpine:${ALPINE_VERSION}
 LABEL maintaner="Bojan Cekrlic - https://github.com/bokysan/docker-postfix/"
 
 # See README.md for details
