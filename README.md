@@ -1,4 +1,5 @@
 # docker-postfix ![Docker image](https://github.com/bokysan/docker-postfix/workflows/Docker%20image/badge.svg)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbokysan%2Fdocker-postfix.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbokysan%2Fdocker-postfix?ref=badge_shield)
 
 Simple postfix relay host ("postfix null client") for your Docker containers. Based on Alpine Linux.
 
@@ -313,3 +314,7 @@ The other projects are, in completely random order:
 - [catatnight/postfix](https://github.com/catatnight/docker-postfix)
 - [juanluisbaptiste/docker-postfix](https://github.com/juanluisbaptiste/docker-postfix)
 - [docker-mail-relay](https://github.com/alterrebe/docker-mail-relay)
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbokysan%2Fdocker-postfix.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbokysan%2Fdocker-postfix?ref=badge_large)
