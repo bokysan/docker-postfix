@@ -57,7 +57,7 @@ The following configuration options are available
 - `RELAYHOST_TLS_LEVEL` = Relay host TLS connection leve
 - `POSTFIX_message_size_limit` = The maximum size of the messsage, in bytes, by default it's unlimited
 - `POSTFIX_mynetworks` = Allow sending mails only from specific networks ( default `127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16` )
-- `POSTFIX_hostname` = Set tha name of this postfix server
+- `POSTFIX_myhostname` = Set the name of this postfix server
 - `MASQUERADED_DOMAINS` = domains where you want to masquerade internal hosts
 - `POSTFIX_<any_postfix_setting>` = provide any additional postfix setting
 - `SMTP_HEADER_CHECKS`= Set to `1` to enable header checks of to a location
