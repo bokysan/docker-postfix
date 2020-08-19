@@ -287,7 +287,7 @@ postfix_setup_dkim() {
 					domain_dkim_selector="$(get_dkim_selector "${domain}")"
 					echo -e "        ...for domain ${emphasis}${domain}${reset} (selector: ${emphasis}${domain_dkim_selector}${reset})"
 					echo "${domain_dkim_selector}._domainkey.${domain} ${domain}:${domain_dkim_selector}:${private_key}" >> /etc/opendkim/KeyTable
-					echo "*@$i ${domain_dkim_selector}._domainkey.${domain}" >> /etc/opendkim/SigningTable
+					echo "*@${domain} ${domain_dkim_selector}._domainkey.${domain}" >> /etc/opendkim/SigningTable
 				else
 					error "Skipping DKIM for domain ${emphasis}${domain}${reset}. File ${private_key} not found!"
 				fi
