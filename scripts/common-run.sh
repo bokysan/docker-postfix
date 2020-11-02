@@ -104,6 +104,8 @@ postfix_setup_relayhost() {
 		# smtp_tls_CApath
 		do_postconf -e "smtp_tls_CAfile=/etc/ssl/certs/ca-certificates.crt"
 
+		file_env 'RELAYHOST_PASSWORD'
+
 		if [ -n "$RELAYHOST_USERNAME" ] && [ -n "$RELAYHOST_PASSWORD" ]; then
 			echo -e " using username ${emphasis}$RELAYHOST_USERNAME${reset} and password ${emphasis}(redacted)${reset}."
 			if [[ -f /etc/postfix/sasl_passwd ]]; then
@@ -128,6 +130,51 @@ postfix_setup_relayhost() {
 		do_postconf -# smtp_sasl_auth_enable
 		do_postconf -# smtp_sasl_password_maps
 		do_postconf -# smtp_sasl_security_options
+	fi
+}
+
+postfix_setup_xoauth2_pre_setup() {
+	file_env 'XOAUTH2_CLIENT_ID'
+	file_env 'XOAUTH2_SECRET'
+	if [ -n "$XOAUTH2_CLIENT_ID" ] && [ -n "$XOAUTH2_SECRET" ]; then
+		cat <<EOF > /etc/sasl-xoauth2.conf
+{
+  "client_id": "${XOAUTH2_CLIENT_ID}",
+  "client_secret": "${XOAUTH2_SECRET}",
+  "log_to_syslog_on_failure": "${XOAUTH2_SYSLOG_ON_FAILURE:-no}",
+  "log_full_trace_on_failure": "${XOAUTH2_FULL_TRACE:-no}"
+}
+EOF
+
+		if [ -z "$RELAYHOST" ] || [ -z "${RELAYHOST_USERNAME}" ]; then
+			error "You need to specify RELAYHOST and RELAYHOST_USERNAME otherwise Postfix will not run!"
+			exit 1
+		fi
+
+		export RELAYHOST_PASSWORD="/var/spool/postfix/xoauth2-tokens/${RELAYHOST_USERNAME}"
+
+		if [ ! -d "/var/spool/postfix/xoauth2-tokens" ]; then
+			mkdir -p "/var/spool/postfix/xoauth2-tokens"
+		fi
+
+		if [ ! -f "/var/spool/postfix/xoauth2-tokens/${RELAYHOST_USERNAME}" ] && [ -n "$XOAUTH2_INITIAL_ACCESS_TOKEN" ] && [ -n "$XOAUTH2_INITIAL_REFRESH_TOKEN" ]; then
+			cat <<EOF > "/var/spool/postfix/xoauth2-tokens/${RELAYHOST_USERNAME}"
+{
+	"access_token" : "${XOAUTH2_INITIAL_ACCESS_TOKEN}",
+	"refresh_token" : "${XOAUTH2_INITIAL_REFRESH_TOKEN}",
+	"expiry" : "0"
+}
+EOF
+		fi
+		chown -R postfix:root "/var/spool/postfix/xoauth2-tokens"
+	fi
+}
+
+postfix_setup_xoauth2_post_setup() {
+	if [ -n "$XOAUTH2_CLIENT_ID" ] && [ -n "$XOAUTH2_SECRET" ]; then
+		do_postconf -e 'smtp_sasl_security_options='
+		do_postconf -e 'smtp_sasl_mechanism_filter=xoauth2'
+		do_postconf -e 'smtp_tls_session_cache_database=btree:${data_directory}/smtp_scache'
 	fi
 }
 
@@ -387,4 +434,12 @@ execute_post_init_scripts() {
 			esac
 		done
 	fi
+}
+
+unset_sensible_variables() {
+	unset RELAYHOST_PASSWORD
+	unset XOAUTH2_CLIENT_ID
+	unset XOAUTH2_SECRET
+	unset XOAUTH2_INITIAL_ACCESS_TOKEN
+	unset XOAUTH2_INITIAL_REFRESH_TOKEN
 }

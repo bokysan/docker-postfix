@@ -15,6 +15,7 @@ Simple postfix relay host ("postfix null client") for your Docker containers. Ba
   * [Postfix-specific options](#postfix-specific-options)
     * [RELAYHOST, RELAYHOST_USERNAME and RELAYHOST_PASSWORD](#relayhost-relayhost_username-and-relayhost_password)
     * [RELAYHOST_TLS_LEVEL](#relayhost_tls_level)
+    * [XOAUTH2_CLIENT_ID, XOAUTH2_SECRET, XOAUTH2_INITIAL_ACCESS_TOKEN and XOAUTH2_INITIAL_REFRESH_TOKEN](#xoauth2_client_id-xoauth2_secret-xoauth2_initial_access_token-and-xoauth2_initial_refresh_token)
     * [MASQUERADED_DOMAINS](#masqueraded_domains)
     * [SMTP_HEADER_CHECKS](#smtp_header_checks)
     * [POSTFIX_hostname](#postfix_hostname)
@@ -27,6 +28,7 @@ Simple postfix relay host ("postfix null client") for your Docker containers. Ba
     * [Changing the DKIM selector](#changing-the-dkim-selector)
     * [Overriding specific OpenDKIM settings](#overriding-specific-opendkim-settings)
     * [Verifying your DKIM setup](#verifying-your-dkim-setup)
+  * [Docker Secrets](#docker-secrets)
 * [Helm chart](#helm-chart)
 * [Extending the image](#extending-the-image)
   * [Using custom init scripts](#using-custom-init-scripts)
@@ -137,7 +139,11 @@ To change the log format, set the (unsurprisingly named) variable `LOG_FORMAT=js
 * `RELAYHOST` = Host that relays your messages
 * `RELAYHOST_USERNAME` = An (optional) username for the relay server
 * `RELAYHOST_PASSWORD` = An (optional) login password for the relay server
-* `RELAYHOST_TLS_LEVEL` = Relay host TLS connection leve
+* `RELAYHOST_TLS_LEVEL` = Relay host TLS connection level
+* `XOAUTH2_CLIENT_ID` = OAuth2 client id used when configured as a relayhost.
+* `XOAUTH2_SECRET` = OAuth2 secret used when configured as a relayhost.
+* `XOAUTH2_INITIAL_ACCESS_TOKEN` = Initial OAuth2 access token.
+* `XOAUTH2_INITIAL_REFRESH_TOKEN` = Initial OAuth2 refresh token.
 * `MASQUERADED_DOMAINS` = domains where you want to masquerade internal hosts
 * `SMTP_HEADER_CHECKS`= Set to `1` to enable header checks of to a location of the file for header checks
 * `POSTFIX_hostname` = Set tha name of this postfix server
@@ -180,6 +186,48 @@ docker run --rm --name postfix -e RELAYHOST=mail.google.com -e RELAYHOST_USERNAM
 Define relay host TLS connection level. See [smtp_tls_security_level](http://www.postfix.org/postconf.5.html#smtp_tls_security_level) for details. By default, the permissive level ("may") is used, which basically means "use TLS if available" and should be a sane default in most cases.
 
 This level defines how the postfix will connect to your upstream server.
+
+#### `XOAUTH2_CLIENT_ID`, `XOAUTH2_SECRET`, `XOAUTH2_INITIAL_ACCESS_TOKEN` and `XOAUTH2_INITIAL_REFRESH_TOKEN`
+
+> Note: These parameters are used when `RELAYHOST` and `RELAYHOST_USERNAME` are provided.
+
+These parameters allow you to configure a relayhost that requires (or recommends) the [XOAuth2 authentication method](https://github.com/tarickb/sasl-xoauth2) (e.g. GMail).
+- `XOAUTH2_CLIENT_ID` and  `XOAUTH2_SECRET` are the [OAuth2 client credentials](#oauth2-client-credentials-gmail).
+- `XOAUTH2_INITIAL_ACCESS_TOKEN` and `XOAUTH2_INITIAL_REFRESH_TOKEN` are the [initial access token and refresh tokens](#obtain-initial-access-token-gmail). These values are only required to initialize the token file `/var/spool/postfix/xoauth2-tokens/$RELAYHOST_USERNAME`.
+
+Example:
+```
+docker run --rm --name pruebas-postfix \
+    -e RELAYHOST="[smtp.gmail.com]:587" \
+    -e RELAYHOST_USERNAME="<put.your.account>@gmail.com" \
+    -e RELAYHOST_TLS_LEVEL="encrypt" \
+    -e XOAUTH2_CLIENT_ID="<put_your_oauth2_client_id>" \
+    -e XOAUTH2_SECRET="<put_your_oauth2_secret>" \
+    -e ALLOW_EMPTY_SENDER_DOMAINS="true" \
+    -e XOAUTH2_INITIAL_ACCESS_TOKEN="<put_your_acess_token>" \
+    -e XOAUTH2_INITIAL_REFRESH_TOKEN="<put_your_refresh_token>" \
+    boky/postfix
+```
+Next sections describe how to obtain these values.
+
+##### OAuth2 Client Credentials (GMail)
+
+Visit the [Google API Console](https://console.developers.google.com/) to obtain OAuth 2 credentials (a client ID and client secret) for an "Installed application" application type.
+
+Save the client ID and secret and use them to initialize `XOAUTH2_CLIENT_ID` and  `XOAUTH2_SECRET` respectively.
+
+We'll also need these credentials in the next step.
+
+##### Obtain Initial Access Token (GMail)
+
+Use the [Gmail OAuth2 developer tools](https://github.com/google/gmail-oauth2-tools/) to obtain an OAuth token by following the [Creating and Authorizing an OAuth Token](https://github.com/google/gmail-oauth2-tools/wiki/OAuth2DotPyRunThrough#creating-and-authorizing-an-oauth-token) instructions.
+
+Save the resulting tokens and use them to initialize `XOAUTH2_INITIAL_ACCESS_TOKEN` and `XOAUTH2_INITIAL_REFRESH_TOKEN`.
+
+##### Debug XOAuth2 issues
+
+If you have XOAuth2 authentication issues you can enable XOAuth2 debug message setting `XOAUTH2_SYSLOG_ON_FAILURE` to `"yes"` (default: `"no"`). If you need a more detailed log trace about XOAuth2 you can set `XOAUTH2_FULL_TRACE` to `"yes"` (default: `"no"`).
+
 
 #### `MASQUERADED_DOMAINS`
 
@@ -333,6 +381,26 @@ variable from OpenDKIM config.
 I strongly suggest using a service such as [dkimvalidator](https://dkimvalidator.com/) to make sure your keys are set up
 properly and your DNS server is serving them with the correct records.
 
+
+### Docker Secrets
+
+As an alternative to passing sensitive information via environment variables, _FILE may be appended to some environment variables (see below), causing the initialization script to load the values for those variables from files present in the container. In particular, this can be used to load passwords from Docker secrets stored in /run/secrets/<secret_name> files. For example:
+
+```
+docker run --rm --name pruebas-postfix \
+    -e RELAYHOST="[smtp.gmail.com]:587" \
+    -e RELAYHOST_USERNAME="<put.your.account>@gmail.com" \
+    -e RELAYHOST_TLS_LEVEL="encrypt" \
+    -e XOAUTH2_CLIENT_ID_FILE="/run/secrets/xoauth2-client-id" \
+    -e XOAUTH2_SECRET_FILE="/run/secrets/xoauth2-secret" \
+    -e ALLOW_EMPTY_SENDER_DOMAINS="true" \
+    -e XOAUTH2_INITIAL_ACCESS_TOKEN_FILE="/run/secrets/xoauth2-access-token" \
+    -e XOAUTH2_INITIAL_REFRESH_TOKEN_FILE="/run/secrets/xoauth2-refresh-token" \
+    boky/postfix
+```
+
+Currently, this is only supported for `XOAUTH2_CLIENT_ID`, `XOAUTH2_SECRET`, `XOAUTH2_INITIAL_ACCESS_TOKEN` and `XOAUTH2_INITIAL_REFRESH_TOKEN`.
+
 ## Helm chart
 
 This image comes with its own helm chart. The chart versions are aligned with the releases of the image. Charts are hosted
@@ -428,11 +496,12 @@ account which will use `UID:GID` of `100:101`. `opendkim` will run under account
 
 ### Relaying messages through your Gmail account
 
-Please note that Gmail does not support using your password with non-OAuth2 clients, which -- technically -- postfix is.
-You will need to enable [Less secure apps](https://support.google.com/accounts/answer/6010255?hl=en) in your account
-and assign an "app password". You'll also need to use (only) your email as the sender address.
+Please note that Gmail does not support using your password with non-OAuth2 clients. You will need to either enable 
+[Less secure apps](https://support.google.com/accounts/answer/6010255?hl=en) in your account and assign an "app password"
+or [configure postfix support for XOAuth2 authentication](#xoauth2_client_id-xoauth2_secret-xoauth2_initial_access_token-and-xoauth2_initial_refresh_token).
+You'll also need to use (only) your email as the sender address.
 
-Your configuration would be as follows:
+If you follow the *less than secure* route, your configuration would be as follows:
 
 ```shell script
 RELAYHOST=smtp.gmail.com:587
