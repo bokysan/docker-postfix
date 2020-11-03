@@ -1,0 +1,48 @@
+version: '3.7'
+
+volumes:
+  logs-volume:
+services:
+  postfix_test_587:
+    hostname: "postfix"
+    image: "boky/postfix"
+    build:
+      context: ../..
+    restart: always
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "netstat -an | fgrep 587 | fgrep -q LISTEN" ]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 2
+    environment:
+      FORCE_COLOR: "1"
+      ALLOW_EMPTY_SENDER_DOMAINS: "true"
+      RELAYHOST: "[smtp.gmail.com]:587"
+      RELAYHOST_USERNAME: "${RELAYHOST_USERNAME}"
+      RELAYHOST_TLS_LEVEL: "encrypt"
+      XOAUTH2_CLIENT_ID: "${XOAUTH2_CLIENT_ID}"
+      XOAUTH2_SECRET: "${XOAUTH2_SECRET}"
+      XOAUTH2_INITIAL_ACCESS_TOKEN: "${XOAUTH2_INITIAL_ACCESS_TOKEN}"
+      XOAUTH2_INITIAL_REFRESH_TOKEN: "${XOAUTH2_INITIAL_REFRESH_TOKEN}"
+      XOAUTH2_SYSLOG_ON_FAILURE: "no"
+      XOAUTH2_FULL_TRACE: "no"
+      LOG_FORMAT: "json"
+      POSTFIX_maillog_file: "/logs/postfix.log"
+      POSTFIX_maillog_file_prefixes: "/var,/dev/sdout,/logs"
+    volumes:
+      - "logs-volume:/logs"
+  tests:
+    image: "boky/postfix-integration-test"
+    restart: "no"
+    volumes:
+      - "./common:/common"
+      - "./it:/code"
+      - "logs-volume:/logs"
+    build:
+      context: ../tester
+    command: "/"
+    environment:
+      FROM: "${FROM}"
+      TO: "${TO}"
+      SKIP_INVALID_DOMAIN_SEND: "1"

@@ -2,3 +2,4 @@
 helm/fixtures
 public
 gh-pages
+.env
