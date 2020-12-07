@@ -65,20 +65,29 @@ spec:
           readinessProbe:
             initialDelaySeconds: 5
             periodSeconds: 60
-            command: >
-              sh -c 'printf "EHLO healthcheck\n" | nc localhost 587 | grep -qE "^220.*ESMTP Postfix"'
+            exec:
+              command:
+                - sh
+                - -c
+                - 'printf "EHLO healthcheck\n" | nc 127.0.0.1 587 | grep -qE "^220.*ESMTP Postfix"'
           livenessProbe:
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 1
-            command: >
-              sh -c 'ps axf | fgrep -v grep | fgrep -q "{supervisord}" && ps axf | fgrep -v grep | fgrep -q "/usr/libexec/postfix/master"'
+            exec:
+              command:
+                - sh
+                - -c
+                - 'ps axf | fgrep -v grep | fgrep -q "{supervisord}" && ps axf | fgrep -v grep | fgrep -q "/usr/libexec/postfix/master"'
           startupProbe:
             initialDelaySeconds: 2
             periodSeconds: 5
             failureThreshold: 12
-            command: >
-              sh -c 'ps axf | fgrep -v grep | fgrep -q "{supervisord}" && ps axf | fgrep -v grep | fgrep -q "{postfix-script}" && ps axf | fgrep -v grep | fgrep -q "{opendkim.sh}"'
+            exec:
+              command:
+                - sh
+                - -c
+                - 'ps axf | fgrep -v grep | fgrep -q "{supervisord}" && ps axf | fgrep -v grep | fgrep -q "{postfix-script}" && ps axf | fgrep -v grep | fgrep -q "{opendkim.sh}"'
           envFrom:
             - configMapRef:
                 name: {{ $fullName | quote }}
