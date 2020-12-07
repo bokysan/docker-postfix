@@ -352,7 +352,7 @@ postfix_setup_dkim() {
 				if [ -f $private_key ]; then
 					domain_dkim_selector="$(get_dkim_selector "${domain}")"
 					echo -e "        ...for domain ${emphasis}${domain}${reset} (selector: ${emphasis}${domain_dkim_selector}${reset})"
-					if ! su opendkim -s /bin/bash -c 'cat /etc/opendkim/keys/example.org.private' > /dev/null 2>&1; then
+					if ! su opendkim -s /bin/bash -c "cat /etc/opendkim/keys/${domain}.private" > /dev/null 2>&1; then
 						echo -e "        ...trying to reown ${emphasis}${private_key}${reset} as it's not readable by OpenDKIM..."
 						# Fixes #39
 						chown opendkim:opendkim "${private_key}"
