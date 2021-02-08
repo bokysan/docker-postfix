@@ -457,6 +457,7 @@ Chart configuration is as follows:
 | `config.opendkim` | `{}` | Key-value list of general OpenDKIM options, e.g. `RequireSafeKeys: "yes"` |
 | `persistence.enabled` | `true` | Persist Postfix's queu on disk |
 | `persistence.accessModes` | `[ 'ReadWriteOnce' ]` | Access mode |
+| `persistence.existingClaim` | `""` | Provide an existing `PersistentVolumeClaim`, the value is evaluated as a template. |
 | `persistence.size` | `1Gi` | Storage size |
 | `persistence.storageClass` | `""` | Storage class |
 

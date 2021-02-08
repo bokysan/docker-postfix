@@ -96,5 +96,6 @@ persistence:
   enabled: true
   accessModes:
     - ReadWriteOnce
+  existingClaim: ""
   size: 1Gi
   storageClass: ""
