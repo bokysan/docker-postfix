@@ -19,6 +19,7 @@ service:
   port: 587
   labels: {}
   annotations: {}
+  # nodePort:
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -68,10 +69,15 @@ container:
   postfix:
     securityContext: {}
 
+# Auto-generate certificates for the server and mount them into Postfix volume
+certs:
+  create: false
+
 # Define data which should be stored in a Secret
 # (and shared with the pod as environment variables)
 # secret:
 #   hello: world
+secret: {}
 
 config:
   general: {}
@@ -85,7 +91,6 @@ config:
     # RELAYHOST:
     # RELAYHOST_USERNAME:
     # RELAYHOST_PASSWORD:
-    # RELAYHOST_TLS_LEVEL:
     # MASQUERADED_DOMAINS:
     # SMTP_HEADER_CHECKS:
     # DKIM_SELECTOR:
@@ -93,6 +98,7 @@ config:
   postfix: {}
     # e.g.
     # myhostname: "postfix"
+    # smtp_tls_security_level: "encrypt"
   opendkim: {}
     # e.g.
     # RequireSafeKeys: "yes"
@@ -107,9 +113,9 @@ persistence:
 
 
 readinessProbe:
-  initialDelaySeconds: 30
+  initialDelaySeconds: 10
   periodSeconds: 60
-  failureThreshold: 2
+  failureThreshold: 6
   exec:
     command:
       - sh
@@ -123,7 +129,9 @@ livenessProbe:
     command:
       - sh
       - -c
-      - 'ps axf | fgrep -v grep | fgrep -q "{supervisord}" && ps axf | fgrep -v grep | fgrep -q "/usr/libexec/postfix/master"'
+      - >-
+        ps axf | fgrep -v grep | egrep -q '\{supervisord\}|/usr/bin/supervisord' &&
+        ps axf | fgrep -v grep | egrep -q '(/usr/lib/postfix/sbin/|/usr/libexec/postfix/)master'
 startupProbe:
   initialDelaySeconds: 5
   periodSeconds: 5
@@ -132,4 +140,7 @@ startupProbe:
     command:
       - sh
       - -c
-      - 'ps axf | fgrep -v grep | fgrep -q "{supervisord}" && ps axf | fgrep -v grep | fgrep -q "{postfix-script}" && ps axf | fgrep -v grep | fgrep -q "{opendkim.sh}"'
+      - >-
+        ps axf | fgrep -v grep | egrep -q '\{supervisord\}|/usr/bin/supervisord' &&
+        ps axf | fgrep -v grep | fgrep -q "postfix-script" &&
+        ps axf | fgrep -v grep | fgrep -q 'opendkim.sh'

@@ -1,0 +1,12 @@
+image:
+  tag: v2.0.1 # Override version from Chart's AppVersion
+
+persistence:
+  enabled: true
+  existingClaim: some-claim
+
+config:
+  general:
+    TZ: Europe/London
+    ALLOWED_SENDER_DOMAINS: example.org
+    FORCE_COLOR: "1"

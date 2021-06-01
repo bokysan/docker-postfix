@@ -50,38 +50,55 @@ setup_conf() {
 }
 
 reown_folders() {
-	mkdir -p /var/spool/postfix/ && mkdir -p /var/spool/postfix/pid
+	mkdir -p /var/spool/postfix/pid /var/spool/postfix/dev
 	chown root: /var/spool/postfix/
 	chown root: /var/spool/postfix/pid
+
+	do_postconf -e "manpage_directory=/usr/share/man"
+	postfix -c /etc/postfix/ set-permissions || true
 }
 
 postfix_upgrade_conf() {
 	local maincf=/etc/postfix/main.cf
+	local line
 	local entry
 	local filename
+	local OLD_IFS
 
 	# Check for any references to the old "hash:" and "btree:" databases and replae them with "lmdb:"
 	if cat "$maincf" | egrep -v "^#" | egrep -q "(hash|btree):"; then
-		info "Detected old hash: and btree: references in the config file, which are not supported anymore. Upgrading to lmdb:"
+		warn "Detected old hash: and btree: references in the config file, which are not supported anymore. Upgrading to lmdb:"
 		sed -i -E 's/(hash|btree):/lmdb:/g' "$maincf"
+		OLD_IFS="$IFS"
+		IFS=$'\n'
 		# Recreate aliases
-		for entry in $(cat "$maincf" | egrep -o "lmdb:[^,]+" | sort | uniq); do
-			filename="$(echo $entry | cut -d: -f2)"
+		for line in $(cat "$maincf" | egrep 'lmdb:[^,]+' | sort | uniq); do
+			entry="$(echo "$line" | egrep -o 'lmdb:[^,]+')"
+			filename="$(echo "$entry" | cut -d: -f2)"
 			if [[ -f "$filename" ]]; then
-				debug "Creating new postmap for ${emphasis}$entry${reset}."
-				postmap $entry
+				if echo "$line" | egrep -q '[ \t]*alias.*'; then
+					debug "Creating new postalias for ${emphasis}$entry${reset}."
+					postalias $entry
+				else
+					debug "Creating new postmap for ${emphasis}$entry${reset}."
+					postmap $entry
+				fi
 			fi
 		done
+		IFS="$OLD_IFS"
 	else
 		debug "No upgrade needed."
 	fi
 }
 
 postfix_disable_utf8() {
-	do_postconf -e smtputf8_enable=no
+	if [[ -f /etc/alpine-release ]]; then
+		do_postconf -e smtputf8_enable=no
+	fi
 }
 
 postfix_create_aliases() {
+	touch /etc/postfix/aliases
 	postalias /etc/postfix/aliases
 }
 
@@ -130,12 +147,14 @@ postfix_set_hostname() {
 }
 
 postfix_set_relay_tls_level() {
-	if [ -z "$RELAYHOST_TLS_LEVEL" ]; then
+	if [ ! -z "$RELAYHOST_TLS_LEVEL" ]; then
+		deprecated "${emphasis}RELAYHOST_TLS_LEVEL${reset} variable is deprecated. Please use ${emphasis}POSTFIX_smtp_tls_security_level${reset} instead."
+		POSTFIX_smtp_tls_security_level="$RELAYHOST_TLS_LEVEL"
+	fi
+
+	if [ -z "$POSTFIX_smtp_tls_security_level" ]; then
 		info "Setting smtp_tls_security_level: ${emphasis}may${reset}"
-		do_postconf -e "smtp_tls_security_level=may"
-	else
-		notice "Setting smtp_tls_security_level: ${emphasis}$RELAYHOST_TLS_LEVEL${reset}"
-		do_postconf -e "smtp_tls_security_level=$RELAYHOST_TLS_LEVEL"
+		POSTFIX_smtp_tls_security_level="may"
 	fi
 }
 
@@ -160,6 +179,9 @@ postfix_setup_relayhost() {
 				echo "$RELAYHOST $RELAYHOST_USERNAME:$RELAYHOST_PASSWORD" >> /etc/postfix/sasl_passwd
 			fi
 			postmap lmdb:/etc/postfix/sasl_passwd
+			chown root:root /etc/postfix/sasl_passwd /etc/postfix/sasl_passwd.lmdb
+			chmod 0600 /etc/postfix/sasl_passwd /etc/postfix/sasl_passwd.lmdb
+
 			do_postconf -e "smtp_sasl_auth_enable=yes"
 			do_postconf -e "smtp_sasl_password_maps=lmdb:/etc/postfix/sasl_passwd"
 			do_postconf -e "smtp_sasl_security_options=noanonymous"
@@ -478,6 +500,7 @@ execute_post_init_scripts() {
 						. "$f"
 					else
 						echo -e "\trunning ${emphasis}bash $f${reset}"
+						bash "$f"
 					fi
 					;;
 				*)

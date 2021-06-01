@@ -20,7 +20,7 @@ services:
       ALLOW_EMPTY_SENDER_DOMAINS: "true"
       RELAYHOST: "[smtp.gmail.com]:587"
       RELAYHOST_USERNAME: "${RELAYHOST_USERNAME}"
-      RELAYHOST_TLS_LEVEL: "encrypt"
+      POSTFIX_smtp_tls_security_level: "encrypt"
       XOAUTH2_CLIENT_ID: "${XOAUTH2_CLIENT_ID}"
       XOAUTH2_SECRET: "${XOAUTH2_SECRET}"
       #XOAUTH2_INITIAL_ACCESS_TOKEN: "${XOAUTH2_INITIAL_ACCESS_TOKEN}"

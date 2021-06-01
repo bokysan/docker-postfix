@@ -40,10 +40,10 @@ spec:
       {{ with .Values.imagePullSecrets }}imagePullSecrets: {{- toYaml . | nindent 8 }}{{- end }}
       {{ if .Values.schedulerName }}schedulerName: {{ .Values.schedulerName | quote }}{{ end }}
       {{ if .Values.priorityClassName }}priorityClassName: {{ .Values.priorityClassName | quote }}{{ end }}
-      {{- with .Values.pod.securityContext }}securityContext: {{- toYaml . | nindent 8 }}{{- end }}
-      {{- with .Values.nodeSelector }}nodeSelector: {{- toYaml . | nindent 8 }}{{- end }}
-      {{- with .Values.affinity }}affinity: {{- toYaml . | nindent 8 }} {{- end }}
-      {{- with .Values.tolerations }}tolerations: {{- toYaml . | nindent 8 }} {{- end }}
+      {{ with .Values.pod.securityContext }}securityContext: {{- toYaml . | nindent 8 }}{{- end }}
+      {{ with .Values.nodeSelector }}nodeSelector: {{- toYaml . | nindent 8 }}{{- end }}
+      {{ with .Values.affinity }}affinity: {{- toYaml . | nindent 8 }} {{- end }}
+      {{ with .Values.tolerations }}tolerations: {{- toYaml . | nindent 8 }} {{- end }}
 
       {{- if .Values.extraInitContainers }}
       #
@@ -76,35 +76,52 @@ spec:
           volumeMounts:
             - mountPath: /var/spool/postfix
               name: {{ $fullName }}
+            - mountPath: /var/spool/postfix/private
+              name: private
+            - mountPath: /var/spool/postfix/public
+              name: private
+            {{- if .Values.certs.create }}
+            - name: certs
+              mountPath: /var/run/certs
+              readOnly: true
+            - name: certs-init
+              mountPath: /docker-init.db/_enable_tls.sh
+              readOnly: true
+              subPath: _enable_tls.sh
+            {{- end }}
             {{- if .Values.extraVolumeMounts }}{{- toYaml .Values.extraVolumeMounts | nindent 12 }}{{ end }}
           resources: {{ toYaml .Values.resources | nindent 12 }}
-      {{- if .Values.persistence.enabled }}
-      {{ if .Values.extraVolumes }}volumes: {{- toYaml .Values.extraVolumes | nindent 8 }}{{ end }}
-      {{- if .Values.persistence.existingClaim }}
       volumes:
+        # Socket directories
+        - name: public
+          emptyDir: {}
+        - name: private
+          emptyDir: {}
+        {{- if .Values.certs.create }}
+        - name: certs-init
+          configMap:
+            name: {{ $fullName }}
+            defaultMode: 0755
+        - name: certs
+          secret:
+            secretName: {{ $fullName }}-certs
+        {{- end }}
+        {{- if and .Values.persistence.enabled .Values.persistence.existingClaim }}
         - name: {{ $fullName }}
           persistentVolumeClaim:
             {{- with .Values.persistence.existingClaim }}
             claimName: {{ tpl . $ }}
             {{- end }}
-        {{- if .Values.extraVolumes }}{{- toYaml .Values.extraVolumes | nindent 8 }}{{ end }}
-      {{- else }}
-      volumes:
+        {{- else if not .Values.persistence.enabled }}
         - name: {{ $fullName }}
           emptyDir: {}
+        {{- end }}
         {{- if .Values.extraVolumes }}{{- toYaml .Values.extraVolumes | nindent 8 }}{{ end }}
-      {{- end }}
-      {{- else }}
-      volumes:
-        - name: {{ $fullName }}
-          emptyDir: {}
-        {{- if .Values.extraVolumes }}{{- toYaml .Values.extraVolumes | nindent 8 }}{{ end }}
-      {{- end }}
   {{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
   volumeClaimTemplates:
     - metadata:
         name: {{ $fullName }}
-        namespace: infrastructure
+        namespace: {{ .Release.Namespace }}
       spec:
         accessModes: {{- toYaml .Values.persistence.accessModes | nindent 10 }}
         {{- if (eq "-" .Values.persistence.storageClass) }}

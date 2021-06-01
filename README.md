@@ -10,6 +10,7 @@ Simple postfix relay host ("postfix null client") for your Docker containers. Ba
 * [Description](#description)
 * [TL;DR](#tldr)
 * [Updates](#updates)
+* [Architectures](#architectures)
 * [Configuration options](#configuration-options)
   * [General options](#general-options)
     * [Inbound debugging](#inbound-debugging)
@@ -17,7 +18,7 @@ Simple postfix relay host ("postfix null client") for your Docker containers. Ba
     * [Log format](#log-format)
   * [Postfix-specific options](#postfix-specific-options)
     * [RELAYHOST, RELAYHOST_USERNAME and RELAYHOST_PASSWORD](#relayhost-relayhost_username-and-relayhost_password)
-    * [RELAYHOST_TLS_LEVEL](#relayhost_tls_level)
+    * [POSTFIX_smtp_tls_security_level](#postfix_smtp_tls_security_level)
     * [XOAUTH2_CLIENT_ID, XOAUTH2_SECRET, XOAUTH2_INITIAL_ACCESS_TOKEN and XOAUTH2_INITIAL_REFRESH_TOKEN](#xoauth2_client_id-xoauth2_secret-xoauth2_initial_access_token-and-xoauth2_initial_refresh_token)
     * [MASQUERADED_DOMAINS](#masqueraded_domains)
     * [SMTP_HEADER_CHECKS](#smtp_header_checks)
@@ -112,6 +113,10 @@ While this should affect most of the users (`/etc/postfix/main.cf` is managed by
 people have their own configuration which relies on `hash` and `btree` databases. To avoid braking live systems, the version of this
 image has been updated to `v3.0.0.`.
 
+## Architectures
+
+Available for all your favourite architectures. Run in your server cluster. Run it on your Raspberry Pi 4. Run it on your acient Pentium or an old Beaglebone. The following architectures are supported: `linux/386`, `linux/amd64`, `linux/arm/v6`, `linux/arm/v7`, `linux/arm64` and `linux/ppc64le`.
+
 ## Configuration options
 
 ### General options
@@ -157,7 +162,7 @@ To change the log format, set the (unsurprisingly named) variable `LOG_FORMAT=js
 * `RELAYHOST_USERNAME` = An (optional) username for the relay server
 * `RELAYHOST_PASSWORD` = An (optional) login password for the relay server
 * `RELAYHOST_PASSWORD_FILE` = An (optional) file containing the login password for the relay server. Mutually exclusive with the previous option.
-* `RELAYHOST_TLS_LEVEL` = Relay host TLS connection level
+* `POSTFIX_smtp_tls_security_level` = Relay host TLS connection level
 * `XOAUTH2_CLIENT_ID` = OAuth2 client id used when configured as a relayhost.
 * `XOAUTH2_SECRET` = OAuth2 secret used when configured as a relayhost.
 * `XOAUTH2_INITIAL_ACCESS_TOKEN` = Initial OAuth2 access token.
@@ -199,7 +204,7 @@ If your end server requires you to authenticate with username/password, add them
 docker run --rm --name postfix -e RELAYHOST=mail.google.com -e RELAYHOST_USERNAME=hello@gmail.com -e RELAYHOST_PASSWORD=world -p 1587:587 boky/postfix
 ```
 
-#### `RELAYHOST_TLS_LEVEL`
+#### `POSTFIX_smtp_tls_security_level`
 
 Define relay host TLS connection level. See [smtp_tls_security_level](http://www.postfix.org/postconf.5.html#smtp_tls_security_level) for details. By default, the permissive level ("may") is used, which basically means "use TLS if available" and should be a sane default in most cases.
 
@@ -221,7 +226,7 @@ Example:
 docker run --rm --name pruebas-postfix \
     -e RELAYHOST="[smtp.gmail.com]:587" \
     -e RELAYHOST_USERNAME="<put.your.account>@gmail.com" \
-    -e RELAYHOST_TLS_LEVEL="encrypt" \
+    -e POSTFIX_smtp_tls_security_level="encrypt" \
     -e XOAUTH2_CLIENT_ID="<put_your_oauth2_client_id>" \
     -e XOAUTH2_SECRET="<put_your_oauth2_secret>" \
     -e ALLOW_EMPTY_SENDER_DOMAINS="true" \
@@ -412,7 +417,7 @@ As an alternative to passing sensitive information via environment variables, `_
 docker run --rm --name pruebas-postfix \
     -e RELAYHOST="[smtp.gmail.com]:587" \
     -e RELAYHOST_USERNAME="<put.your.account>@gmail.com" \
-    -e RELAYHOST_TLS_LEVEL="encrypt" \
+    -e POSTFIX_smtp_tls_security_level="encrypt" \
     -e XOAUTH2_CLIENT_ID_FILE="/run/secrets/xoauth2-client-id" \
     -e XOAUTH2_SECRET_FILE="/run/secrets/xoauth2-secret" \
     -e ALLOW_EMPTY_SENDER_DOMAINS="true" \
@@ -449,22 +454,26 @@ Chart configuration is as follows:
 | `fullnameOverride` | `""` | Override the helm full deployment name |
 | `serviceAccount.create` | `true` | Specifies whether a service account should be created |
 | `serviceAccount.annotations` | `{}` | Annotations to add to the service account |
-| `serviceAccount.name` | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template | `service.type` | `ClusterIP` | How is the server exposed |
+| `serviceAccount.name` | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
+| `service.type` | `ClusterIP` | How is the server exposed |
 | `service.port` | `587` | SMTP submission port |
 | `service.labels` | `{}` | Additional service labels |
 | `service.annotations` | `{}` | Additional service annotations |
 | `service.spec` | `{}` | Additional service specifications |
+| `service.nodePort` | *empty* | Use a specific `nodePort` |
+| `service.nodeIP` | *empty* | Use a specific `nodeIP` |
 | `resources` | `{}` | [Pod resources](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | `autoscaling.enabled` | `false` | Set to `true` to enable [Horisontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) |
 | `autoscaling.minReplicas` | `1` | Minimum number of replicas |
 | `autoscaling.maxReplicas` | `100` | Maximum number of replicas |
 | `autoscaling.targetCPUUtilizationPercentage` | `80` | When to scale up |
-| `autoscaling.targetMemoryUtilizationPercentage` | `` | When to scale up |
+| `autoscaling.targetMemoryUtilizationPercentage` | `""` | When to scale up |
 | `autoscaling.labels` | `{}` | Additional HPA labels |
 | `autoscaling.annotations` | `{}` | Additional HPA annotations |
 | `nodeSelector` | `{}` | Standard Kubernetes stuff |
 | `tolerations` | `[]` | Standard Kubernetes stuff |
 | `affinity` | `{}` | Standard Kubernetes stuff |
+| `certs.create` | `{}` | Auto generate TLS certificates for Postfix |
 | `extraVolumes` | `[]` | Append any extra volumes to the pod |
 | `extraVolumeMounts` | `[]` | Append any extra volume mounts to the postfix container |
 | `extraInitContainers` | `[]` | Execute any extra init containers on startup |
@@ -478,7 +487,8 @@ Chart configuration is as follows:
 | `config.general` | `{}` | Key-value list of general configuration options, e.g. `TZ: "Europe/London"` |
 | `config.postfix` | `{}` | Key-value list of general postfix options, e.g. `myhostname: "demo"` |
 | `config.opendkim` | `{}` | Key-value list of general OpenDKIM options, e.g. `RequireSafeKeys: "yes"` |
-| `persistence.enabled` | `true` | Persist Postfix's queu on disk |
+| `secret` | `{}` | Key-value list of environment variables to be shared with Postfix / OpenDKIM as secrets |
+| `persistence.enabled` | `true` | Persist Postfix's queue on disk |
 | `persistence.accessModes` | `[ 'ReadWriteOnce' ]` | Access mode |
 | `persistence.existingClaim` | `""` | Provide an existing `PersistentVolumeClaim`, the value is evaluated as a template. |
 | `persistence.size` | `1Gi` | Storage size |

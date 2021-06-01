@@ -75,3 +75,4 @@ checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . |
 # Uses: https://github.com/stakater/Reloader
 configmap.reloader.stakater.com/reload: "{{ include "mail.fullname" . }}"
 {{- end -}}
+
