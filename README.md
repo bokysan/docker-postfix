@@ -159,6 +159,7 @@ To change the log format, set the (unsurprisingly named) variable `LOG_FORMAT=js
 ### Postfix-specific options
 
 * `RELAYHOST` = Host that relays your messages
+* `SASL_RELAYHOST` = (optional) Relay Host referenced in the `sasl_passwd` file. Defaults to the value of `RELAYHOST`
 * `RELAYHOST_USERNAME` = An (optional) username for the relay server
 * `RELAYHOST_PASSWORD` = An (optional) login password for the relay server
 * `RELAYHOST_PASSWORD_FILE` = An (optional) file containing the login password for the relay server. Mutually exclusive with the previous option.

@@ -89,6 +89,7 @@ config:
     # ALLOW_EMPTY_SENDER_DOMAINS:
     # LOG_FORMAT:
     # RELAYHOST:
+    # SASL_RELAYHOST: # when specified overwrites the RELAYHOST in the sasl_passwd file
     # RELAYHOST_USERNAME:
     # RELAYHOST_PASSWORD:
     # MASQUERADED_DOMAINS:
