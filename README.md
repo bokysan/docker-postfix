@@ -468,6 +468,7 @@ Chart configuration is as follows:
 | `extraVolumeMounts` | `[]` | Append any extra volume mounts to the postfix container |
 | `extraInitContainers` | `[]` | Execute any extra init containers on startup |
 | `extraEnv` | `[]` | Add any extra environment variables to the container |
+| `extraContainers` | `[]` | Add extra containers |
 | `deployment.labels` | `{}` | Additional labels for the statefulset |
 | `deployment.annotations` | `{}` | Additional annotations for the statefulset |
 | `pod.securityContext` | `{}` | Pods's [security context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) |

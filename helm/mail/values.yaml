@@ -48,6 +48,7 @@ extraVolumes: []
 extraVolumeMounts: []
 extraInitContainers: []
 extraEnv: []
+extraContainers: []
 
 deployment:
   labels: {}
