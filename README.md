@@ -22,7 +22,7 @@ Simple postfix relay host ("postfix null client") for your Docker containers. Ba
     * [XOAUTH2_CLIENT_ID, XOAUTH2_SECRET, XOAUTH2_INITIAL_ACCESS_TOKEN and XOAUTH2_INITIAL_REFRESH_TOKEN](#xoauth2_client_id-xoauth2_secret-xoauth2_initial_access_token-and-xoauth2_initial_refresh_token)
     * [MASQUERADED_DOMAINS](#masqueraded_domains)
     * [SMTP_HEADER_CHECKS](#smtp_header_checks)
-    * [POSTFIX_hostname](#postfix_hostname)
+    * [POSTFIX_myhostname](#postfix_myhostname)
     * [POSTFIX_mynetworks](#postfix_mynetworks)
     * [POSTFIX_message_size_limit](#postfix_message_size_limit)
     * [Overriding specific postfix settings](#overriding-specific-postfix-settings)
@@ -170,7 +170,7 @@ To change the log format, set the (unsurprisingly named) variable `LOG_FORMAT=js
 * `XOAUTH2_INITIAL_REFRESH_TOKEN` = Initial OAuth2 refresh token.
 * `MASQUERADED_DOMAINS` = domains where you want to masquerade internal hosts
 * `SMTP_HEADER_CHECKS`= Set to `1` to enable header checks of to a location of the file for header checks
-* `POSTFIX_hostname` = Set the name of this postfix server
+* `POSTFIX_myhostname` = Set the name of this postfix server
 * `POSTFIX_mynetworks` = Allow sending mails only from specific networks ( default `127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16` )
 * `POSTFIX_message_size_limit` = The maximum size of the messsage, in bytes, by default it's unlimited
 * `POSTFIX_<any_postfix_setting>` = provide any additional postfix setting
