@@ -26,6 +26,7 @@ Simple postfix relay host ("postfix null client") for your Docker containers. Ba
     * [POSTFIX_mynetworks](#postfix_mynetworks)
     * [POSTFIX_message_size_limit](#postfix_message_size_limit)
     * [Overriding specific postfix settings](#overriding-specific-postfix-settings)
+    * [ANONYMIZE_EMAILS](#anonymize_emails)
   * [DKIM / DomainKeys](#dkim--domainkeys)
     * [Supplying your own DKIM keys](#supplying-your-own-dkim-keys)
     * [Auto-generating the DKIM selectors through the image](#auto-generating-the-dkim-selectors-through-the-image)
@@ -330,6 +331,61 @@ it stuck in the outbound queue indefinitely.
 Any Postfix [configuration option](http://www.postfix.org/postconf.5.html) can be overriden using `POSTFIX_<name>`
 environment variables, e.g. `POSTFIX_allow_mail_to_commands=alias,forward,include`. Specifying no content (empty
 variable) will remove that variable from postfix config.
+
+#### ANONYMIZE_EMAILS
+
+Anonymize email in Postfix logs. It mask the email content by putting `*` in the middle of the name and the domain.
+For example: `from=<a*****************s@a***********.com>`
+
+Syntax: `<masker-name>[;options]`
+
+The following filters are provided with this implementation:
+
+##### The `default` (`smart`) filter
+
+Enable the filter by setting `ANONYMIZE_EMAILS=smart`.
+
+The filter has no options and is enabled by setting the value to `on`, `true`, `1`, `default` or `smart`. The filter
+masker will take an educated guess at how to best mask the emails, specifically:
+
+* It will leave the first and the last letter of the local part (if it's oly one letter, it will get repated)
+* If the local part is in quotes, it will remove the quotes (Warning: if the email starts with a space, this might look weird in logs)
+* It will replace all the letters inbetween with **ONE** asterisk, even if there are none
+* It will replace everything but a TLD with a star
+* Address-style domains will see the number replaced with stars
+
+E.g.:
+
+* `demo@example.org` -> `d*o@*******.org`
+* `john.doe@example.solutions` -> `j*e@*******.solutions`
+* `sa@localhost` -> `s*a@*********`
+* `s@[192.168.8.10]` -> `s*s@[*.*.*.*]`
+* `"multi....dot"@[IPv6:2001:db8:85a3:8d3:1319:8a2e:370:7348]` -> `"m*t"@[IPv6:***********]`
+
+##### The `paranoid` filter
+
+The paranoid filter works similar to smart filter but will:
+
+* Replace the local part with **ONE** asterisk
+* Replace the domain part (sans TLD) with **ONE asterisk
+
+E.g.:
+
+* `demo@example.org` -> `*@*.org`
+* `john.doe@example.solutions` -> `*@*.solutions`
+* `sa@localhost` -> `*@*`
+* `s@[192.168.8.10]` -> `*@[*]`
+* `"multi....dot"@[IPv6:2001:db8:85a3:8d3:1319:8a2e:370:7348]` -> `*@[IPv6:*]`
+
+##### The `noop` filter
+
+This filter doesn't do anything. It's used for testing purposes only.
+
+##### Writting your own filters
+
+It's easy enough to write your own filters. The simplest way would be to take the `email-anonymizer.py` filte in this
+image, write your own and then attach it to the container image under `/scripts`. If you're feeling adentorous, you can
+also install your own Python package -- the script will automatically pick up the class name.
 
 ### DKIM / DomainKeys
 

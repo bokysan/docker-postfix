@@ -4,6 +4,7 @@
 
 export DOCKER_BUILDKIT=1
 export DOCKER_CLI_EXPERIMENTAL=enabled
+export BUILDKIT_PROGRESS=plain
 
 if ! docker buildx inspect multiarch > /dev/null; then
     docker buildx create --name multiarch

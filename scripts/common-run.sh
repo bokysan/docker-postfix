@@ -28,6 +28,27 @@ rsyslog_log_format() {
 	sed -i -E "s/<log-format>/${log_format}/" /etc/rsyslog.conf
 }
 
+anon_email_log() {
+	local anon_email="${ANONYMIZE_EMAILS}"
+	if [[ "${anon_email}" == "true" || "${anon_email}" == "1" || "${anon_email}" == "yes" || "${anon_email}" == "y" ]]; then
+		anon_email="default"
+	fi
+	if [[ -n "${anon_email}" && "${anon_email}" != "0" ]]; then
+		notice "Using ${emphasis}${anon_email}${reset} filter for email anonymization."
+		sed -i -E "s/<anon-email-format>/${anon_email}/" /etc/rsyslog.conf
+		sed -i -E '
+		/^\s*#\s*<email-anonymizer>\s*$/,/^\s*#\s*<\/email-anonymizer>\s*$/{
+			/^\s*#\s*<email-anonymizer>\s*$/n
+			/^\s*#\s*<\/email-anonymizer>\s*$/! {
+			s/(\s*)#(.*)$/\1\2/g
+			}
+		}
+		' /etc/rsyslog.conf
+	else
+		info "Emails in the logs will not be anonymized. Set ${emphasis}ANONYMIZE_EMAILS${reset} to enable this feature."
+	fi
+}
+
 setup_conf() {
 	local srcfile
 	local dstfile

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
-. /common.sh
-. /common-run.sh
+. /scripts/common.sh
+. /scripts/common-run.sh
 
 announce_startup                    # Print startup banner
 setup_timezone                      # Check if we need to configure the container timezone
 rsyslog_log_format                  # Setup rsyslog output format
+anon_email_log                      # Setup email anonymizer
 setup_conf                          # Copy over files from /etc/postfix.template to /etc/postfix, if the user mounted the folder manually
 reown_folders                       # Make and reown /var/spool/postfix/ folders
 postfix_upgrade_conf                # Upgrade old coniguration, replace "hash:" and "btree:" databases to "lmdb:"

@@ -1,0 +1,87 @@
+#!/usr/bin/env bats
+
+load /code/scripts/common.sh
+load /code/scripts/common-run.sh
+
+@test "check if filter gets injected into rsyslog" {
+	mkdir -p /etc/
+	cat > /etc/rsyslog.conf <<-EOF
+	$ModLoad immark.so # provides --MARK-- message capability
+	$ModLoad imuxsock.so # provides support for local system logging (e.g. via logger command)
+
+	# default permissions for all log files.
+	$FileOwner root
+	$FileGroup adm
+	$FileCreateMode 0640
+	$DirCreateMode 0755
+	$Umask 0022
+
+	template (name="devicelog" type="string" string="/dev/stdout")
+
+	template(name="json" type="list") {
+		constant(value="{")
+		constant(value="\"@timestamp\":\"")          property(name="timereported" dateFormat="rfc3339")
+		constant(value="\",\"type\":\"syslog_json")
+		constant(value="\",\"tag\":\"")              property(name="syslogtag" format="json")
+		constant(value="\",\"relayhost\":\"")        property(name="fromhost")
+		constant(value="\",\"relayip\":\"")          property(name="fromhost-ip")
+		constant(value="\",\"logsource\":\"")        property(name="source")
+		constant(value="\",\"hostname\":\"")         property(name="hostname" caseconversion="lower")
+		constant(value="\",\"program\":\"")          property(name="programname")
+		constant(value="\",\"priority\":\"")         property(name="pri")
+		constant(value="\",\"severity\":\"")         property(name="syslogseverity")
+		constant(value="\",\"facility\":\"")         property(name="syslogfacility")
+		constant(value="\",\"severity_label\":\"")   property(name="syslogseverity-text")
+		constant(value="\",\"facility_label\":\"")   property(name="syslogfacility-text")
+		constant(value="\",\"message\":\"")          property(name="msg" format="json")
+		constant(value="\",\"end_msg\":\"")
+		constant(value="\"}\n")
+	}
+
+	template(name="plain" type="list") {
+		property(name="timereported" dateFormat="rfc3339")
+		constant(value=" ")
+		property(name="syslogseverity-text" caseconversion="upper" fixedwidth="on" position.to="7")
+		constant(value=" ")
+		property(name="syslogtag")
+		property(name="msg" spifno1stsp="on")
+		property(name="msg" droplastlf="on")
+		constant(value="\n")
+	}
+
+	#<email-anonymizer>
+	#module(load="mmexternal")
+	#</email-anonymizer>
+
+	if $syslogseverity <= '6' then {
+		# Do not log healthchecks
+		if ($msg contains "connect from localhost[127.0.0.1]") then { stop }
+		if ($msg contains "lost connection after EHLO from localhost[127.0.0.1]") then { stop }
+		if ($msg contains "disconnect from localhost[127.0.0.1] ehlo=1 commands=1") then { stop }
+		#<email-anonymizer>
+		## email anonymizer
+		#action(type="mmexternal" binary="/scripts/email-anonymizer.sh <anon-email-format>" interface.input="msg")
+		#</email-anonymizer>
+		action(type="omfile" DynaFile="devicelog" template="<log-format>" DirCreateMode="0755" FileCreateMode="0644")
+		# enable below to stop processing further this log
+		stop
+	}
+
+	include(file="/etc/rsyslog.d/*.conf" mode="optional")
+
+	stop
+	EOF
+
+	local ANONYMIZE_EMAILS=1
+	anon_email_log
+	if ! grep -F "email-anonymizer.sh default" /etc/rsyslog.conf | grep -F -v "#"; then
+		echo "rsyslog.conf is not updated properly; 'email-anonymizer.sh default' commented out!" >&2
+		cat /etc/rsyslog.conf >&2
+		exit 1
+	fi
+	if ! grep -F 'module(load="mmexternal")' /etc/rsyslog.conf | grep -F -v "#"; then
+		echo "rsyslog.conf is not updated properly; 'module(load=\"mmexternal\") commented out!" >&2
+		cat /etc/rsyslog.conf >&2
+		exit 1
+	fi
+}
