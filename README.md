@@ -490,6 +490,7 @@ Chart configuration is as follows:
 | `config.postfix` | `{}` | Key-value list of general postfix options, e.g. `myhostname: "demo"` |
 | `config.opendkim` | `{}` | Key-value list of general OpenDKIM options, e.g. `RequireSafeKeys: "yes"` |
 | `secret` | `{}` | Key-value list of environment variables to be shared with Postfix / OpenDKIM as secrets |
+| `existingSecret` | `""` | A reference to an existing opaque secret. Secret is mounted and exposed as environment variables in the pod |
 | `mountSecret.enabled` | `false` | Create a folder with contents of the secret in the pod's container |
 | `mountSecret.path` | `/var/lib/secret` | Where to mount secret data |
 | `mountSecret.data` | `{}` | Key-value list of files to be mount into the container |
