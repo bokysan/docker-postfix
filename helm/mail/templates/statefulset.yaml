@@ -88,6 +88,10 @@ spec:
             - secretRef:
                 name: {{ $fullName | quote }}
             {{- end }}
+            {{- if .Values.existingSecret }}
+            - secretRef:
+                name: {{ .Values.existingSecret | quote }}
+            {{- end }}
           {{ with .Values.extraEnv }}env: {{- toYaml . | nindent 12 }}{{ end }}
           volumeMounts:
             - mountPath: /var/spool/postfix

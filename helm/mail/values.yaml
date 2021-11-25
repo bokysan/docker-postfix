@@ -90,6 +90,10 @@ certs:
 #   hello: world
 secret: {}
 
+# Use an existing secret to share with the pod
+# as environment variables.
+existingSecret: ""
+
 # Define a secret which should be deployed together with the
 # chart amd mounted into a specific directory in the pod.
 mountSecret:
