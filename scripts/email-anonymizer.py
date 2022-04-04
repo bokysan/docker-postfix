@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 # This pattern below, should, however match anything that remotely looks like an email.
 # It is too broad, though, as it will match things which are not considered valid email
 # addresses as well. But for our use case, that's OK and more than sufficient.
-EMAIL_CATCH_ALL_PATTERN = '([^ "\\[\\]<>]+|".+")@(\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|[A-Za-z0-9]+:.+)\]|([^ \\{}():;]+(\.[^ \\{}():;]+)*))'
+EMAIL_CATCH_ALL_PATTERN = '([^ "\\[\\]<]+|".+")@(\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|[A-Za-z0-9]+:.+)\]|([^ \\{}():;>]+(\.[^ \\{}():;]+)*))'
 EMAIL_CATCH_ALL = re.compile(EMAIL_CATCH_ALL_PATTERN)
 EMPTY_RESPONSE = json.dumps({})
 
@@ -197,14 +197,14 @@ class ParanoidFilter(SmartFilter):
 # -------------------------------------------------------------------------------- #
 
 """
-HashFilter will replace the email with it's hash. This should allow you to grep through
-the logs by hashing the email address yourself, while retaining the anononymity.
+HashFilter will replace the email with its hash. This should allow you to grep through
+the logs by hashing the email address yourself, while retaining the anonymity.
 
-HashFilter uses HMAC to hash addresses, so make sure you inject your unique salt. This
-way, the calculated hashes will be different accross organizations, though providing
-complete anonimity.
+HashFilter uses HMAC to hash addresses (SHA256), so make sure you inject your unique salt. 
+This way, the calculated hashes will be different accross organizations, though providing
+complete anonymity.
 
-Notice that for IP addreses hashes are not appropriate, the set of IP addresses is 
+Notice that for IP addresses hashes are not appropriate, the set of IP addresses is 
 limited and rainbow tables could be used to get back IP addresses. This is not possible
 with emails.
 
@@ -212,15 +212,15 @@ IANAL, though, so your mileage my vary.
 
 """
 class HashFilter(Filter):
-    prefix: str = '<'            # Prefix emails with this (set of) character(s) for easier grepping
-    suffix: str = '>'            # Suffix emails with this (set of) character(s) for easier grepping
+    prefix: str = ''            # Prefix emails with this (set of) character(s) for easier grepping
+    suffix: str = ''            # Suffix emails with this (set of) character(s) for easier grepping
     case_sensitive: bool = True  # Convert strings to lowercase if false
     short_sha: bool = False      # Cut the string to first 8 characters
     split: bool = False          # Split and anonymize local and domain part independently
     
     def init(self, args: 'dict[str, list[str]]') -> None:
         if 'salt' in args and len(args['salt']) > 0:
-            self.byte_key = bytes(args['salt'][0], 'UTF-8')
+            self.salt_encoded = args['salt'][0].encode()
         else:
             raise ValueError("You need to specify salt with this filter!")
 
@@ -252,8 +252,8 @@ class HashFilter(Filter):
             # domain part (at least not that we know).
             local, domain = email.rsplit("@", 1)
 
-            local = hmac.new(self.byte_key, local.encode(), hashlib.sha256).hexdigest()
-            domain = hmac.new(self.byte_key, domain.encode(), hashlib.sha256).hexdigest()
+            local = hmac.new(self.salt_encoded, local.encode(), hashlib.sha256).hexdigest()
+            domain = hmac.new(self.salt_encoded, domain.encode(), hashlib.sha256).hexdigest()
 
             if self.short_sha:
                 local = local[:8]
@@ -262,7 +262,7 @@ class HashFilter(Filter):
             email = local + "@" + domain
 
         else:
-            email = hmac.new(self.byte_key, email.encode(), hashlib.sha256).hexdigest()
+            email = hmac.new(self.salt_encoded, email.encode(), hashlib.sha256).hexdigest()
             if self.short_sha:
                 email = email[:8]
 
