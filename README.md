@@ -400,7 +400,7 @@ Configuration parameters:
 
 ##### The `hash` filter
 
-This filter will replace the email with the salted (HMAC) hash. While it makes the logs much less readable, it has one specific benefit:
+This filter will replace the email with the salted (HMAC - SHA256) hash. While it makes the logs much less readable, it has one specific benefit:
 it allows you to search through the logs if you know the email address you're looking for. You are able to calculate the hash yourself
 and then grep through the logs for this specific email address.
 
@@ -416,8 +416,8 @@ Configuration parameters:
 | Property         | Default value | Required | Description |
 |------------------|---------------|----------|-------------|
 | `salt`           | none          | **yes**  | HMAC key (salt) used for calculating the checksum |
-| `prefix`         | `<`           | no       | Prefix of emails in the log (for easier grepping) |
-| `suffix`         | `>`           | no       | Suffix of emails in the log (for easier grepping) |
+| `prefix`         | ``            | no       | Prefix of emails in the log (for easier grepping) |
+| `suffix`         | ``            | no       | Suffix of emails in the log (for easier grepping) |
 | `split`          | `false`       | no       | Set to `1`, `t` or `true` to hash separately the local and the domain part |
 | `short_sha`      | `false`       | no       | Set to `1`, `t` or `true` to return just the first 8 characters of the hash |
 | `case_sensitive` | `true`        | no       | Set to `0`, `f` or `false` to convert email to lowercase before hashing |
