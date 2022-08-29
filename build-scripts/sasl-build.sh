@@ -6,9 +6,15 @@ do_build() {
     cd /sasl-xoauth2
     mkdir build
     cd build
-    cmake -DCMAKE_INSTALL_PREFIX=/ ..
+    if [ -f /etc/alpine-release ]; then
+        cmake -DCMAKE_INSTALL_PREFIX=/ ..
+    else
+        cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+    fi
     make
     make install
+    install ../scripts/postfix-sasl-xoauth2-update-ca-certs /etc/ca-certificates/update.d
+    update-ca-certificates
 }
 
 if [ -f /etc/alpine-release ]; then
@@ -18,7 +24,7 @@ if [ -f /etc/alpine-release ]; then
 else
     . /etc/lsb-release
     apt-get update -y -qq
-    LIBS="git build-essential cmake pkg-config libcurl4 libcurl4-openssl-dev libssl-dev libjsoncpp-dev libsasl2-dev"
+    LIBS="git build-essential cmake pkg-config libcurl4-openssl-dev libssl-dev libjsoncpp-dev libsasl2-dev"
     apt-get install -y --no-install-recommends ${LIBS}
     do_build
     apt-get remove --purge -y ${LIBS}
