@@ -170,6 +170,7 @@ To change the log format, set the (unsurprisingly named) variable `LOG_FORMAT=js
 * `XOAUTH2_SECRET` = OAuth2 secret used when configured as a relayhost.
 * `XOAUTH2_INITIAL_ACCESS_TOKEN` = Initial OAuth2 access token.
 * `XOAUTH2_INITIAL_REFRESH_TOKEN` = Initial OAuth2 refresh token.
+* `SMTPD_SASL_USERS` = Users allow to send mail (ex: user1:pass1,user2:pass2,...)
 * `MASQUERADED_DOMAINS` = domains where you want to masquerade internal hosts
 * `SMTP_HEADER_CHECKS`= Set to `1` to enable header checks of to a location of the file for header checks
 * `POSTFIX_myhostname` = Set the name of this postfix server
