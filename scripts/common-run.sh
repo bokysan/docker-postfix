@@ -306,6 +306,33 @@ postfix_setup_xoauth2_post_setup() {
 	fi
 }
 
+postfix_setup_smtpd_sasl_auth() {
+	if [ ! -z "$SMTPD_SASL_USERS" ]; then
+		info "Enable smtpd sasl auth."
+		do_postconf -e "smtpd_sasl_auth_enable=yes"
+		do_postconf -e "broken_sasl_auth_clients=yes"
+		
+		[ ! -d /etc/postfix/sasl ] && mkdir /etc/postfix/sasl
+		cat >> /etc/postfix/sasl/smtpd.conf <<EOF
+pwcheck_method: auxprop
+auxprop_plugin: sasldb
+mech_list: PLAIN LOGIN CRAM-MD5 DIGEST-MD5 NTLM
+EOF
+		[ ! -d /etc/sasl2 ] && mkdir /etc/sasl2
+		ln -s /etc/postfix/sasl/smtpd.conf /etc/sasl2/
+
+		# sasldb2
+		echo $SMTPD_SASL_USERS | tr , \\n > /tmp/passwd
+		while IFS=':' read -r _user _pwd; do
+			echo $_pwd | saslpasswd2 -p -c $_user
+		done < /tmp/passwd
+
+		rm -f /tmp/passwd
+
+		chown postfix:postfix /etc/sasldb2
+	fi
+}
+
 postfix_setup_networks() {
 	if [ ! -z "$MYNETWORKS" ]; then
 		deprecated "${emphasis}MYNETWORKS${reset} variable is deprecated. Please use ${emphasis}POSTFIX_mynetworks${reset} instead."
@@ -352,7 +379,11 @@ postfix_setup_sender_domains() {
 		echo
 		postmap lmdb:$allowed_senders
 
-		do_postconf -e "smtpd_recipient_restrictions=reject_non_fqdn_recipient, reject_unknown_recipient_domain, check_sender_access lmdb:$allowed_senders, reject"
+		if [ ! -z "$SMTPD_SASL_USERS" ]; then
+			smtpd_sasl="permit_sasl_authenticated,"
+		fi
+
+		do_postconf -e "smtpd_recipient_restrictions=reject_non_fqdn_recipient, reject_unknown_recipient_domain, check_sender_access lmdb:$allowed_senders, $smtpd_sasl reject"
 
 		# Since we are behind closed doors, let's just permit all relays.
 		do_postconf -e "smtpd_relay_restrictions=permit"
@@ -579,4 +610,5 @@ unset_sensible_variables() {
 	unset XOAUTH2_SECRET
 	unset XOAUTH2_INITIAL_ACCESS_TOKEN
 	unset XOAUTH2_INITIAL_REFRESH_TOKEN
+	unset SMTPD_SASL_USERS
 }

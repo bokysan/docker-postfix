@@ -29,6 +29,7 @@ postfix_setup_sender_domains        # Configure allowed sender domains
 postfix_setup_masquarading          # Setup masquaraded domains
 postfix_setup_header_checks         # Enable SMTP header checks, if defined
 postfix_setup_dkim                  # Configure DKIM, if enabled
+postfix_setup_smtpd_sasl_auth       # Enable sender sasl auth, if defined
 postfix_custom_commands             # Apply custom postfix settings
 opendkim_custom_commands            # Apply custom OpenDKIM settings
 postfix_open_submission_port        # Enable the submission port
