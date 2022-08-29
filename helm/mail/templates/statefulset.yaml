@@ -77,7 +77,7 @@ spec:
                 command:
                   - bash
                   - -c
-                  - touch /tmp/container_is_terminating && while ! [[ "`mailq`" == *empty* ]]; do echo "Flushing queue..." && postfix flush; sleep 1; done
+                  - touch /tmp/container_is_terminating && while ! [[ "`mailq`" == *empty* ]]; do echo "Flushing queue..." && postfix flush; sleep 1; done; killall5 -15 supervisord
             {{- if .Values.lifecycle.postStart }}
             postStart: {{- toYaml .Values.lifecycle.postStart | nindent 14 }}
             {{- end }}
