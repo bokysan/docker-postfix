@@ -129,6 +129,7 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache-new/ubuntu
           build-args: |
             BASE_IMAGE=ubuntu:impish
+            BASE_IMAGE=ubuntu:focal
 
       - name: Move cache
         run: |
