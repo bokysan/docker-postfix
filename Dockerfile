@@ -27,7 +27,6 @@ FROM base AS sasl
 
 ARG TARGETPLATFORM
 ARG SASL_XOAUTH2_REPO_URL=https://github.com/tarickb/sasl-xoauth2.git
-ARG SASL_XOAUTH2_GIT_REF=release-0.12
 ARG SASL_XOAUTH2_GIT_REF=release-0.14
 
 #           --mount=type=cache,target=/var/cache/apk,sharing=locked,id=var-cache-apk-$TARGETPLATFORM \
