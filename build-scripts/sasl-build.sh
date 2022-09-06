@@ -7,6 +7,7 @@ do_build() {
     mkdir build
     cd build
     if [ -f /etc/alpine-release ]; then
+        patch -p1 -d .. < /build-scripts/sasl-xoauth2.diff
         cmake -DCMAKE_INSTALL_PREFIX=/ ..
     else
         cmake -DCMAKE_INSTALL_PREFIX=/usr ..
@@ -18,7 +19,7 @@ do_build() {
 }
 
 if [ -f /etc/alpine-release ]; then
-    apk add --upgrade --virtual .build-deps git cmake clang make gcc g++ libc-dev pkgconfig curl-dev jsoncpp-dev cyrus-sasl-dev
+    apk add --upgrade --virtual .build-deps git cmake clang make gcc g++ libc-dev pkgconfig curl-dev jsoncpp-dev cyrus-sasl-dev patch
     do_build
     apk del .build-deps;
 else

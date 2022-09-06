@@ -1,0 +1,10 @@
+--- a/src/test_config.cc	2022-09-06 21:21:10.600553457 +0200
++++ b/src/test_config.cc	2022-09-06 21:21:42.736614599 +0200
+@@ -1,6 +1,7 @@
+ #include <getopt.h>
+ #include <sasl/sasl.h>
+ #include <string.h>
++#include <libgen.h>
+ 
+ #include "config.h"
+ #include "log.h"
