@@ -183,12 +183,12 @@ jobs:
       # See more here: https://artifacthub.io/docs/topics/annotations/helm/#supported-annotations
 
       - name: Package helm chart
-        uses: WyriHaximus/github-action-helm3@v2
+        uses: WyriHaximus/github-action-helm3@v3
         with:
           exec: helm package --app-version $RELEASE_VERSION --version $RELEASE_VERSION --destination ./gh-pages helm/mail
 
       - name: Create helm chart index
-        uses: WyriHaximus/github-action-helm3@v2
+        uses: WyriHaximus/github-action-helm3@v3
         with:
           exec: cd gh-pages && rm -rf .git && helm repo index . --url https://bokysan.github.io/docker-postfix
       - name: Upload gh-pages
