@@ -349,7 +349,7 @@ postfix_setup_smtpd_sasl_auth() {
 		do_postconf -e "broken_sasl_auth_clients=yes"
 		
 		[ ! -d /etc/postfix/sasl ] && mkdir /etc/postfix/sasl
-		cat >> /etc/postfix/sasl/smtpd.conf <<EOF
+		cat > /etc/postfix/sasl/smtpd.conf <<EOF
 pwcheck_method: auxprop
 auxprop_plugin: sasldb
 mech_list: PLAIN LOGIN CRAM-MD5 DIGEST-MD5 NTLM
