@@ -285,13 +285,14 @@ postfix_setup_relayhost() {
 postfix_setup_xoauth2_pre_setup() {
 	file_env 'XOAUTH2_CLIENT_ID'
 	file_env 'XOAUTH2_SECRET'
-	if [ -n "$XOAUTH2_CLIENT_ID" ] && [ -n "$XOAUTH2_SECRET" ]; then
+	if [ -n "$XOAUTH2_CLIENT_ID" ] || [ -n "$XOAUTH2_SECRET" ]; then
 		cat <<EOF > /etc/sasl-xoauth2.conf
 {
   "client_id": "${XOAUTH2_CLIENT_ID}",
   "client_secret": "${XOAUTH2_SECRET}",
   "log_to_syslog_on_failure": "${XOAUTH2_SYSLOG_ON_FAILURE:-no}",
-  "log_full_trace_on_failure": "${XOAUTH2_FULL_TRACE:-no}"
+  "log_full_trace_on_failure": "${XOAUTH2_FULL_TRACE:-no}",
+  "token_endpoint": "${XOAUTH2_TOKEN_ENDPOINT:-https://accounts.google.com/o/oauth2/token}"
 }
 EOF
 
@@ -324,7 +325,7 @@ EOF
 
 postfix_setup_xoauth2_post_setup() {
 	local other_plugins
-	if [ -n "$XOAUTH2_CLIENT_ID" ] && [ -n "$XOAUTH2_SECRET" ]; then
+	if [ -n "$XOAUTH2_CLIENT_ID" ] || [ -n "$XOAUTH2_SECRET" ]; then
 		do_postconf -e 'smtp_sasl_security_options='
 		do_postconf -e 'smtp_sasl_mechanism_filter=xoauth2'
 		do_postconf -e 'smtp_tls_session_cache_database=lmdb:${data_directory}/smtp_scache'
