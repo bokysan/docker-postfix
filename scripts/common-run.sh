@@ -291,7 +291,8 @@ postfix_setup_xoauth2_pre_setup() {
   "client_id": "${XOAUTH2_CLIENT_ID}",
   "client_secret": "${XOAUTH2_SECRET}",
   "log_to_syslog_on_failure": "${XOAUTH2_SYSLOG_ON_FAILURE:-no}",
-  "log_full_trace_on_failure": "${XOAUTH2_FULL_TRACE:-no}"
+  "log_full_trace_on_failure": "${XOAUTH2_FULL_TRACE:-no}",
+  "token_endpoint": "${XOAUTH2_TOKEN_ENDPOINT:-'https://accounts.google.com/o/oauth2/token'}"
 }
 EOF
 
