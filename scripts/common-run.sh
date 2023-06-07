@@ -285,7 +285,7 @@ postfix_setup_relayhost() {
 postfix_setup_xoauth2_pre_setup() {
 	file_env 'XOAUTH2_CLIENT_ID'
 	file_env 'XOAUTH2_SECRET'
-	if [ -n "$XOAUTH2_CLIENT_ID" ] && [ -n "$XOAUTH2_SECRET" ]; then
+	if [ -n "$XOAUTH2_CLIENT_ID" ] || [ -n "$XOAUTH2_SECRET" ]; then
 		cat <<EOF > /etc/sasl-xoauth2.conf
 {
   "client_id": "${XOAUTH2_CLIENT_ID}",
