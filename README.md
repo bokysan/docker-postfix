@@ -19,7 +19,7 @@ Simple postfix relay host ("postfix null client") for your Docker containers. Ba
   * [Postfix-specific options](#postfix-specific-options)
     * [RELAYHOST, RELAYHOST_USERNAME and RELAYHOST_PASSWORD](#relayhost-relayhost_username-and-relayhost_password)
     * [POSTFIX_smtp_tls_security_level](#postfix_smtp_tls_security_level)
-    * [XOAUTH2_CLIENT_ID, XOAUTH2_SECRET, XOAUTH2_INITIAL_ACCESS_TOKEN and XOAUTH2_INITIAL_REFRESH_TOKEN](#xoauth2_client_id-xoauth2_secret-xoauth2_initial_access_token-and-xoauth2_initial_refresh_token)
+    * [XOAUTH2_CLIENT_ID, XOAUTH2_SECRET, XOAUTH2_INITIAL_ACCESS_TOKEN, XOAUTH2_INITIAL_REFRESH_TOKEN and XOAUTH2_TOKEN_ENDPOINT ](#xoauth2_client_id-xoauth2_secret-xoauth2_initial_access_token-xoauth2_initial_refresh_token-and-xoauth2_token_endpoint)
     * [MASQUERADED_DOMAINS](#masqueraded_domains)
     * [SMTP_HEADER_CHECKS](#smtp_header_checks)
     * [POSTFIX_myhostname](#postfix_myhostname)
@@ -215,7 +215,7 @@ Define relay host TLS connection level. See [smtp_tls_security_level](http://www
 
 This level defines how the postfix will connect to your upstream server.
 
-#### `XOAUTH2_CLIENT_ID`, `XOAUTH2_SECRET`, `XOAUTH2_INITIAL_ACCESS_TOKEN` and `XOAUTH2_INITIAL_REFRESH_TOKEN`
+#### `XOAUTH2_CLIENT_ID`, `XOAUTH2_SECRET`, `XOAUTH2_INITIAL_ACCESS_TOKEN`, `XOAUTH2_INITIAL_REFRESH_TOKEN` and `XOAUTH2_TOKEN_ENDPOINT`
 
 > Note: These parameters are used when `RELAYHOST` and `RELAYHOST_USERNAME` are provided.
 
@@ -223,6 +223,7 @@ These parameters allow you to configure a relayhost that requires (or recommends
 
 * `XOAUTH2_CLIENT_ID` and  `XOAUTH2_SECRET` are the [OAuth2 client credentials](#oauth2-client-credentials-gmail).
 * `XOAUTH2_INITIAL_ACCESS_TOKEN` and `XOAUTH2_INITIAL_REFRESH_TOKEN` are the [initial access token and refresh tokens](#obtain-initial-access-token-gmail).
+* `XOAUTH2_TOKEN_ENDPOINT` is mandatory for Microsoft 365 use, sasl-xoauth2 will use Gmail URL if it is not provided.
    These values are only  required to initialize the token file `/var/spool/postfix/xoauth2-tokens/$RELAYHOST_USERNAME`.
 
 Example:
