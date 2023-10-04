@@ -233,7 +233,7 @@ jobs:
       - name: Package helm chart
         uses: WyriHaximus/github-action-helm3@v3
         with:
-          exec: helm package --app-version $RELEASE_VERSION --version $RELEASE_VERSION --destination ./gh-pages helm/mail
+          exec: helm package --app-version $RELEASE_VERSION --version "${RELEASE_VERSION#v}" --destination ./gh-pages helm/mail
 
       - name: Create helm chart index
         uses: WyriHaximus/github-action-helm3@v3
