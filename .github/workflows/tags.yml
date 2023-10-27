@@ -222,6 +222,7 @@ jobs:
       - Helm_chart_Tests
       - Build_Alpine
       - Build_Ubuntu
+      - Build_Debian
 
     steps:
       # Checkout

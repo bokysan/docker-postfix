@@ -325,6 +325,7 @@ EOF
 
 postfix_setup_xoauth2_post_setup() {
 	local other_plugins
+	local plugin_viewer="pluginviewer"
 	if [ -n "$XOAUTH2_CLIENT_ID" ] || [ -n "$XOAUTH2_SECRET" ]; then
 		do_postconf -e 'smtp_sasl_security_options='
 		do_postconf -e 'smtp_sasl_mechanism_filter=xoauth2'
@@ -338,7 +339,12 @@ postfix_setup_xoauth2_post_setup() {
 		# 
 		# The fix is therefore simple: If we're not using OAuth2, we remove the plugin from the list and
 		# keep all the plugins installed.
-		other_plugins="$(pluginviewer -c | grep Plugin | cut -d\  -f2 | cut -c2- | rev | cut -c2- | rev | grep -v EXTERNAL | grep -v sasl-xoauth2 | tr '\n' ',' | rev | cut -c2- | rev)"
+
+		if hash saslpluginviewer > /dev/null 2>&1; then
+			# Ubuntu/Debian have renamed pluginviewer to saslpluginviewer so this fails with those distros.
+			plugin_viewer="saslpluginviewer"
+		fi
+		other_plugins="$(${plugin_viewer} -c | grep Plugin | cut -d\  -f2 | cut -c2- | rev | cut -c2- | rev | grep -v EXTERNAL | grep -v sasl-xoauth2 | tr '\n' ',' | rev | cut -c2- | rev)"
 		do_postconf -e "smtp_sasl_mechanism_filter=${other_plugins}"
 	fi
 }

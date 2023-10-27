@@ -1,0 +1,14 @@
+version: '3.7'
+services:
+  tests:
+    hostname: "postfix"
+    image: "boky/postfix"
+    restart: no
+    volumes:
+      - "./tests:/tests"
+    environment:
+      FORCE_COLOR: "1"
+      ALLOWED_EMPTY_SENDER_DOMAINS: "example.org"
+      POSTFIX_smtpd_end_of_data_restrictions: "check_client_access static:discard"
+    entrypoint: [ "/bin/sh", "-c" ]
+    command: [ "/tests/test.sh" ]

@@ -7,10 +7,10 @@ fi
 
 do_alpine() {
     apk update
-    apk add --upgrade cyrus-sasl cyrus-sasl-static cyrus-sasl-digestmd5 cyrus-sasl-crammd5 cyrus-sasl-login cyrus-sasl-ntlm
+    apk add --upgrade cyrus-sasl cyrus-sasl-static cyrus-sasl-digestmd5 cyrus-sasl-crammd5 cyrus-sasl-login cyrus-sasl-ntlm libsasl
     apk add postfix
     apk add opendkim
-    apk add --upgrade ca-certificates tzdata supervisor rsyslog musl musl-utils bash opendkim-utils libcurl jsoncpp lmdb logrotate
+    apk add --upgrade ca-certificates tzdata supervisor rsyslog musl musl-utils bash opendkim-utils libcurl jsoncpp lmdb logrotate netcat-openbsd
 }
 
 do_ubuntu() {
@@ -22,7 +22,7 @@ do_ubuntu() {
     export DEBIAN_FRONTEND=noninteractive
     echo "Europe/Berlin" > /etc/timezone
     apt-get update -y -q
-    apt-get install -y libsasl2-modules
+    apt-get install -y libsasl2-modules sasl2-bin
     apt-get install -y postfix
     apt-get install -y opendkim
     apt-get install -y ca-certificates tzdata supervisor rsyslog bash opendkim-tools curl libcurl4 libjsoncpp25 sasl2-bin postfix-lmdb logrotate cron net-tools ${RELEASE_SPECIFIC_PACKAGES}
