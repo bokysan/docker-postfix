@@ -3,7 +3,7 @@ services:
   tests:
     hostname: "postfix"
     image: "boky/postfix"
-    restart: no
+    restart: "no"
     volumes:
       - "./tests:/tests"
     environment:
