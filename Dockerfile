@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.2
 
-ARG BASE_IMAGE=debian:latest
+ARG BASE_IMAGE=debian:bookworm-slim
 # ARG BASE_IMAGE=ubuntu:jammy
 
 FROM ${BASE_IMAGE} AS build-scripts
@@ -65,4 +65,3 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD print
 
 EXPOSE     587
 CMD        [ "/bin/sh", "-c", "/scripts/run.sh" ]
-

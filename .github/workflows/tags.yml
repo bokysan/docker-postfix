@@ -206,7 +206,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache/debian,mode=max,compression=estargz
           cache-to: type=local,dest=/tmp/.buildx-cache-new/debian
           build-args: |
-            BASE_IMAGE=debian:bookworm
+            BASE_IMAGE=debian:bookworm-slim
 
       - name: Move cache
         run: |
