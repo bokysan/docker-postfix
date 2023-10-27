@@ -18,6 +18,7 @@ do_ubuntu() {
     if [ "${ID}" = "debian" ]; then
         RELEASE_SPECIFIC_PACKAGES="netcat-openbsd"
     fi
+    export DEBCONF_NOWARNINGS=yes
     export DEBIAN_FRONTEND=noninteractive
     echo "Europe/Berlin" > /etc/timezone
     apt-get update -y -q
@@ -25,6 +26,8 @@ do_ubuntu() {
     apt-get install -y postfix
     apt-get install -y opendkim
     apt-get install -y ca-certificates tzdata supervisor rsyslog bash opendkim-tools curl libcurl4 libjsoncpp25 sasl2-bin postfix-lmdb logrotate cron
+    apt-get clean
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 }
 
 if [ -f /etc/alpine-release ]; then
