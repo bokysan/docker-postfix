@@ -26,6 +26,8 @@ do_ubuntu() {
     apt-get install -y postfix
     apt-get install -y opendkim
     apt-get install -y ca-certificates tzdata supervisor rsyslog bash opendkim-tools curl libcurl4 libjsoncpp25 sasl2-bin postfix-lmdb logrotate cron net-tools ${RELEASE_SPECIFIC_PACKAGES}
+    apt-get clean
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*    
 }
 
 if [ -f /etc/alpine-release ]; then
