@@ -23,7 +23,6 @@ spec:
     - {{ .Release.Namespace | quote }}
   selector:
     matchLabels:
-      app.kubernetes.io/instance: {{ $chart }}
-      prometheus: unknown
+      app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 {{- end -}}
