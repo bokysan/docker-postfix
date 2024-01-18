@@ -430,6 +430,7 @@ EOF
 
 		[ -f /etc/sasldb2 ] && chown postfix:postfix /etc/sasldb2
 		[ -f /etc/sasl2/sasldb2 ] && chown postfix:postfix /etc/sasl2/sasldb2
+  		debug 'Sasldb configured'
 	fi
 }
 
