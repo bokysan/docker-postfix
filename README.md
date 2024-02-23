@@ -2,7 +2,7 @@
 
 ![Build status](https://github.com/bokysan/docker-postfix/workflows/Docker%20image/badge.svg) [![Latest commit](https://img.shields.io/github/last-commit/bokysan/docker-postfix)](https://github.com/bokysan/docker-postfix/commits/master) [![Latest release](https://img.shields.io/github/v/release/bokysan/docker-postfix?sort=semver&Label=Latest%20release)](https://github.com/bokysan/docker-postfix/releases) [![Docker image size](https://img.shields.io/docker/image-size/boky/postfix?sort=semver)](https://hub.docker.com/r/boky/postfix/) ![GitHub Repo stars](https://img.shields.io/github/stars/bokysan/docker-postfix?label=GitHub%20Stars&style=flat) [![Docker Stars](https://img.shields.io/docker/stars/boky/postfix.svg?label=Docker%20Stars)](https://hub.docker.com/r/boky/postfix/) [![Docker Pulls](https://img.shields.io/docker/pulls/boky/postfix.svg)](https://hub.docker.com/r/boky/postfix/) ![License](https://img.shields.io/github/license/bokysan/docker-postfix) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbokysan%2Fdocker-postfix.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbokysan%2Fdocker-postfix?ref=badge_shield)
 
-Simple postfix relay host ("postfix null client") for your Docker containers. Based on Alpine Linux.
+Simple postfix relay host ("postfix null client") for your Docker containers. Based on Debian GNU/Linux.
 
 ## Table of contents
 
