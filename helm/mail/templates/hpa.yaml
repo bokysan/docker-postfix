@@ -3,7 +3,7 @@
 {{- $fullName := include (print $chart ".fullname") . -}}
 {{- $labels := include (print $chart ".labels") . -}}
 {{- $kind := "StatefulSet" -}}
-apiVersion: autoscaling/v2beta1
+apiVersion: {{ .Values.autoscaling.apiVersion }}
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ $fullName | quote }}

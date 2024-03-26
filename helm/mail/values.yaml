@@ -39,7 +39,7 @@ metrics:
     annotations: {}
   port: 9154
   path: /metrics
-  image: 
+  image:
     repository: "boky/postfix-exporter"
     tag: "latest"
 
@@ -95,6 +95,7 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
   labels: {}
   annotations: {}
+  apiVersion: "autoscaling/v2beta1"
 
 nodeSelector: {}
 tolerations: []
@@ -184,7 +185,7 @@ dns:
     # - 8.8.8.8
     # - 8.8.4.4
   searches: ""
-  # searches: 
+  # searches:
   # - "default.svc.cluster.local"
   # - "svc.cluster.local"
   # - "cluster.local"
