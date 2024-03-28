@@ -95,7 +95,6 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
   labels: {}
   annotations: {}
-  apiVersion: "autoscaling/v2beta1"
 
 nodeSelector: {}
 tolerations: []
