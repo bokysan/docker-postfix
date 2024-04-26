@@ -21,7 +21,7 @@ spec:
       protocol: TCP
       name: smtp
       {{ if eq .Values.service.type "NodePort" }}nodePort: {{ .Values.service.nodePort }}{{ end }}
-      {{ if .Values.service.appprotocol }}appProtocol: {{ .Values.service.appprotocol }}{{ end }}
+      {{ if and (semverCompare ">=1.20-0" .Capabilities.KubeVersion.GitVersion) .Values.service.appprotocol }}appProtocol: {{ .Values.service.appprotocol }}{{ end }}
   selector:
     {{- $selectorLabels | nindent 4 }}
 {{- if .Values.headlessService.enabled }}
@@ -47,7 +47,7 @@ spec:
       targetPort: smtp
       protocol: TCP
       name: smtp
-      {{ if .Values.service.appprotocol }}appProtocol: {{ .Values.service.appprotocol }}{{ end }}
+      {{ if and (semverCompare ">=1.20-0" .Capabilities.KubeVersion.GitVersion) .Values.service.appprotocol }}appProtocol: {{ .Values.service.appprotocol }}{{ end }}
   selector:
     {{- $selectorLabels | nindent 4 }} 
 {{- end -}}
