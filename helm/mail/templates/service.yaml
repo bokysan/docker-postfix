@@ -21,6 +21,7 @@ spec:
       protocol: TCP
       name: smtp
       {{ if eq .Values.service.type "NodePort" }}nodePort: {{ .Values.service.nodePort }}{{ end }}
+      {{ if .Values.service.appprotocol }}appProtocol: {{ .Values.service.appprotocol }}{{ end }}
   selector:
     {{- $selectorLabels | nindent 4 }}
 {{- if .Values.headlessService.enabled }}
@@ -46,6 +47,7 @@ spec:
       targetPort: smtp
       protocol: TCP
       name: smtp
+      {{ if .Values.service.appprotocol }}appProtocol: {{ .Values.service.appprotocol }}{{ end }}
   selector:
     {{- $selectorLabels | nindent 4 }} 
 {{- end -}}
