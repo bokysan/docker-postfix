@@ -1,8 +1,0 @@
-.idea
-helm/fixtures/
-public/
-gh-pages/
-.env
-cache
-postfix_exporter/
-logrotate/
