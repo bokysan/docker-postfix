@@ -215,6 +215,7 @@ To change the log format, set the (unsurprisingly named) variable `LOG_FORMAT=js
   issue a notice when that happens.
 - `MASQUERADED_DOMAINS` = domains where you want to masquerade internal hosts
 - `SMTP_HEADER_CHECKS`= Set to `1` to enable header checks of to a location of the file for header checks
+- `ALT_SUBMISSION_PORT` = Set to port if you need something different than default 587.  Example: `8587`
 - `POSTFIX_myhostname` = Set the name of this postfix server
 - `POSTFIX_mynetworks` = Allow sending mails only from specific networks ( default `127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16` )
 - `POSTFIX_message_size_limit` = The maximum size of the message, in bytes, by default it's unlimited

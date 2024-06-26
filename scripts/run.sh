@@ -38,6 +38,7 @@ postfix_setup_smtpd_sasl_auth           # Enable sender sasl auth, if defined
 postfix_custom_commands                 # Apply custom postfix settings
 opendkim_custom_commands                # Apply custom OpenDKIM settings
 postfix_open_submission_port            # Enable the submission port
+postfix_set_alt_submission_port         # Set the alternative submission port
 execute_post_init_scripts               # Execute any scripts found in /docker-init.db/
 unset_sensitive_variables               # Remove environment variables that contains sensitive values (secrets) that are read from conf files
 

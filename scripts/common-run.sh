@@ -738,6 +738,15 @@ postfix_open_submission_port() {
 	sed -i -r -e 's/^#submission/submission/' /etc/postfix/master.cf
 }
 
+postfix_set_alt_submission_port() {
+	if [ ! -z "$ALT_SUBMISSION_PORT" ]; then
+        notice "ALT_SUBMISSION_PORT is ${emphasis}$ALT_SUBMISSION_PORT${reset}"
+		sed -i -r -e 's/^submission/#submission/' /etc/postfix/master.cf
+		sed -i '/^#submission.*/a\
+8587 inet n       y       n       -       -       smtpd'$'\n' /etc/postfix/master.cf
+	fi
+}
+
 execute_post_init_scripts() {
 	if [ -d /docker-init.db/ ]; then
 		notice "Executing any found custom scripts..."
