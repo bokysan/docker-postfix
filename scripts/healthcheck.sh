@@ -1,5 +1,5 @@
 #!/bin/sh
-#set -e
+set -e
 if [ -f /tmp/container_is_terminating ]; then
     exit 0
 fi
