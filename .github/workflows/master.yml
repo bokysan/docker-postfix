@@ -84,7 +84,7 @@ jobs:
           update-binfmts --enable
 
       - name: Build and push Alpine
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -132,7 +132,7 @@ jobs:
             ${{ runner.os }}-ubuntu-
 
       - name: Build and push Ubuntu
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -176,7 +176,7 @@ jobs:
             ${{ runner.os }}-debian-
 
       - name: Build and push Debian
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
