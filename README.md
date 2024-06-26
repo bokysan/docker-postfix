@@ -754,10 +754,16 @@ There's no need to configure DKIM or SPF, as Gmail will add these headers automa
 
 If your application runs in Amazon Elastic Compute Cloud (Amazon EC2), you can use Amazon SES to send up to 62,000 emails
 every month at no additional charge. You'll need an AWS account and SMTP credentials. The SMTP settings are available
-on the SES page. For example, for `eu-central-1`:
+on the SES page. 
 
-- see the [SES page for details](https://eu-central-1.console.aws.amazon.com/ses/home?region=eu-central-1#smtp-settings),
-- [create the user credentials](https://console.aws.amazon.com/iam/home?#s=SESHomeV4/eu-central-1)
+For example, for `eu-central-1`:
+
+- Please See the [SES Page for Details](https://eu-central-1.console.aws.amazon.com/ses/home?region=eu-central-1#smtp)
+
+You need Amazon SES SMTP credentials to access the SES SMTP interface.
+**NOTE:** Your SMTP password is different from your AWS secret access key.  Additionally, the credentials that you use to send email through the SES SMTP interface are unique to each _AWS Region_. If you use the SES SMTP interface to send email in more than one Region, you must generate a set of SMTP credentials for each Region that you plan to use.
+
+- [Create or Obtain the User Credentials](https://docs.aws.amazon.com/ses/latest/dg/smtp-credentials.html)
 
 **Make sure you write the user credentials down, as you will only see them once.**
 
