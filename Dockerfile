@@ -68,6 +68,4 @@ WORKDIR    /tmp
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --start-interval=2s --retries=3 CMD /scripts/healthcheck.sh
 
-EXPOSE     8587
-
 CMD        [ "/bin/sh", "-c", "/scripts/run.sh" ]
