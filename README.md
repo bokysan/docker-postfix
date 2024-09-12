@@ -628,7 +628,7 @@ Chart configuration is as follows:
 | `pod.securityContext` | `{}` | Pods's [security context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) |
 | `pod.labels` | `{}` | Additional labels for the pod |
 | `pod.annotations` | `{}` | Additional annotations for the pod |
-| `container.postfixsecurityContext` | `{}` | Containers's [security context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) |
+| `container.postfix.securityContext` | `{}` | Containers's [security context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) |
 | `config.general` | `{}` | Key-value list of general configuration options, e.g. `TZ: "Europe/London"` |
 | `config.postfix` | `{}` | Key-value list of general postfix options, e.g. `myhostname: "demo"` |
 | `config.opendkim` | `{}` | Key-value list of general OpenDKIM options, e.g. `RequireSafeKeys: "yes"` |
