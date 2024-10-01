@@ -54,6 +54,13 @@ rsyslog_log_format() {
 	sed -i -E "s/<log-format>/${log_format}/" /etc/rsyslog.conf
 }
 
+logrotate_remove_duplicate_mail_log() {
+	if egrep -q '^/var/log/mail.log' /etc/logrotate.d/logrotate.conf; then
+		info "Removing /var/log/mail.log from /etc/logrotate.d/rsyslog"
+		sed -i -E '/^\/var\/log\/mail.log/d' /etc/logrotate.d/rsyslog
+	fi
+}
+
 anon_email_log() {
 	local anon_email="${ANONYMIZE_EMAILS}"
 	if [[ "${anon_email}" == "true" || "${anon_email}" == "1" || "${anon_email}" == "yes" || "${anon_email}" == "y" ]]; then
