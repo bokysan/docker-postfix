@@ -9,6 +9,7 @@ announce_startup                        # Print startup banner
 setup_timezone                          # Check if we need to configure the container timezone
 check_environment_sane                  # Check if the the environment is sane
 rsyslog_log_format                      # Setup rsyslog output format
+logrotate_remove_duplicate_mail_log     # Remove duplicate logrotate mail.log entry
 anon_email_log                          # Setup email anonymizer
 setup_conf                              # Copy over files from /etc/postfix.template to /etc/postfix, if the user mounted the folder manually
 reown_folders                           # Make and reown /var/spool/postfix/ folders
