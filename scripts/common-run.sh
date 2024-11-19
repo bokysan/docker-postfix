@@ -583,6 +583,21 @@ postfix_setup_header_checks() {
 	fi
 }
 
+function postfix_format_dns_record() {
+  local file=$1
+  local formated_file="${file}.formated"
+
+  dns_record=$(perl -e '
+     $_ = join(" ", (map {chomp; $_} <>));
+     s/^(.*)\s+?\t?+IN.*?(".*").*$/$1 TXT $2\n/;
+     s/"\s*"//g;
+     print
+  ' "$1" > "$formated_file"
+  )
+  output=$(awk '{print "\033[1mRecord:\033[0m " $1 "\n\033[1mTYPE:\033[0m "$2 "\n\033[1mValue:\033[0m "} {for(i=3;i<=NF;++i) printf $i}' "$formated_file")
+  echo "$output"
+}
+
 postfix_setup_dkim() {
 	local DKIM_ENABLED
 	local domain_dkim_selector
@@ -598,8 +613,14 @@ postfix_setup_dkim() {
 		if [[ -n "${ALLOWED_SENDER_DOMAINS}" ]]; then
 			for domain in ${ALLOWED_SENDER_DOMAINS}; do
 				private_key=/etc/opendkim/keys/${domain}.private
+				dns_record=/etc/opendkim/keys/${domain}.txt
 				if [[ -f "${private_key}" ]]; then
 					info "Key for domain ${emphasis}${domain}${reset} already exists in ${emphasis}${private_key}${reset}. Will not overwrite."
+					info "Check/Update your DNS records:"
+          printf "\n**************************************************************\n"
+          printf "\033[1mDomain:\033[0m %s\n" "${domain}"
+          postfix_format_dns_record "${dns_record}"
+          printf "\n**************************************************************\n"
 				else
 					notice "Auto-generating DKIM key for ${emphasis}${domain}${reset} into ${private_key}."
 					(
@@ -625,8 +646,11 @@ postfix_setup_dkim() {
 			if [[ -n "${any_generated}" ]]; then
 				notice "New DKIM keys have been generated! Please make sure to update your DNS records! You need to add the following details:"
 				for file in /etc/opendkim/keys/*.txt; do
-					echo "====== $file ======"
-					cat $file
+				  local domain_name=$(basename "$file" | sed -e 's/.txt//g')
+				  printf "\n**************************************************************\n"
+				  printf "\033[1mDomain:\033[0m %s\n" "${domain_name}"
+					postfix_format_dns_record "${file}"
+					printf "\n**************************************************************\n"
 				done
 				echo
 			fi
