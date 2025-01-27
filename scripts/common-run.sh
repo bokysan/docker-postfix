@@ -258,7 +258,7 @@ postfix_disable_utf8() {
 	if [[ -f /etc/alpine-release ]] && [[ "${smtputf8_enable}" == "yes" ]]; then
 		debug "Running on Alpine. Setting ${emphasis}smtputf8_enable${reset}=${emphasis}no${reset}, as Alpine does not have proper libraries to handle UTF-8"
 		do_postconf -e smtputf8_enable=no
-	elif [[ "${smtputf8_enable}" == "no" ]]; then
+	elif [[ ! -f /etc/alpine-release ]] && [[ "${smtputf8_enable}" == "no" ]]; then
 		debug "Running on non-Alpine system. Setting ${emphasis}smtputf8_enable${reset}=${emphasis}yes${reset}."
 		do_postconf -e smtputf8_enable=yes
 	fi
