@@ -34,6 +34,7 @@ Feel free to pick your favourite distro.
       - [`POSTFIX_message_size_limit`](#postfix_message_size_limit)
       - [Overriding specific postfix settings](#overriding-specific-postfix-settings)
       - [`SKIP_ROOT_SPOOL_CHOWN`](#skip_root_spool_chown)
+      - [`ENABLE_TLSPROXY`](#enable_tlsproxy)
       - [`ANONYMIZE_EMAILS`](#anonymize_emails)
         - [The `default` (`smart`) filter](#the-default-smart-filter)
         - [The `paranoid` filter](#the-paranoid-filter)
@@ -383,6 +384,11 @@ Setting this to `1` will skip re-owning in `/var/spool/postfix/` and `/var/spool
 want to set this option unless you're running into specific issues (e.g. [#97](https://github.com/bokysan/docker-postfix/issues/97)).
 
 If unsure, leave it as is.
+
+#### `ENABLE_TLSPROXY`
+
+Setting this to `true` will enable the `tlsproxy` in `/etc/postfix/master.cf`. You want to enable this, if you enable
+[`smtp_tls_connection_reuse`](https://www.postfix.org/postconf.5.html#smtp_tls_connection_reuse).
 
 #### `ANONYMIZE_EMAILS`
 

@@ -745,6 +745,15 @@ postfix_open_submission_port() {
 	sed -i -r -e 's/^#submission/submission/' /etc/postfix/master.cf
 }
 
+postfix_enable_tlsproxy() {
+	if [ ! -z "$ENABLE_TLSPROXY" ]; then
+		if [[ "${ENABLE_TLSPROXY}" == "true" ]]; then
+			info "Enabling tlsproxy."
+			sed -i -r -e 's/^#tlsproxy/tlsproxy/' /etc/postfix/master.cf
+		fi
+	fi
+}
+
 execute_post_init_scripts() {
 	if [ -d /docker-init.db/ ]; then
 		notice "Executing any found custom scripts..."
