@@ -64,6 +64,15 @@ metrics:
           maxage 90
       }
 
+  resources: {}
+  # If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
 
 # Tell helm to restart (recreate) pods on every deploy. Setting this to true will inject
 # `date/deploy-date: <timestamp>` annotation into pod specification for StateFulset. This

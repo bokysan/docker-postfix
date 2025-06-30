@@ -175,6 +175,7 @@ spec:
             initialDelaySeconds: 5
             failureThreshold: 30
             periodSeconds: 10
+          resources: {{ toYaml .Values.metrics.resources | nindent 12 }}
         {{- end }}
         {{- if .Values.extraContainers }}
         {{- tpl .Values.extraContainers $root | nindent 8 }}
