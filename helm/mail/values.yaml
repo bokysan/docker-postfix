@@ -19,6 +19,7 @@ service:
   port: 587
   labels: {}
   annotations: {}
+  # externalTrafficPolicy: Cluster
   # nodePort:
 
 # StatefulSets now require a headless service
@@ -84,7 +85,8 @@ metrics:
 # a pod and let `StatefulSet` recreate it.
 recreateOnRedeploy: true
 
-resources: {}
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -154,7 +156,8 @@ existingSecret: ""
 mountSecret:
   enabled: false
   path: /var/lib/secret
-  data: {}
+  data:
+    {}
     # e.g.
     # dkim-private: |
     #   -----BEGIN RSA PRIVATE KEY-----
@@ -162,7 +165,8 @@ mountSecret:
     #   -----END RSA PRIVATE KEY-----
 
 config:
-  general: {}
+  general:
+    {}
     # e.g.
     # TZ:
     # FORCE_COLOR:
@@ -178,18 +182,21 @@ config:
     # SMTP_HEADER_CHECKS:
     # DKIM_SELECTOR:
     # DKIM_AUTOGENERATE:
-  postfix: {}
+  postfix:
+    {}
     # e.g.
     # myhostname: "postfix"
     # smtp_tls_security_level: "encrypt"
-  opendkim: {}
+  opendkim:
+    {}
     # e.g.
     # RequireSafeKeys: "yes"
 
 dns:
   policy: ""
   # policy: "None"
-  nameservers: {}
+  nameservers:
+    {}
     # - 8.8.8.8
     # - 8.8.4.4
   searches: ""
