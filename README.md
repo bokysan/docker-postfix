@@ -13,9 +13,9 @@ Feel free to pick your favourite distro.
   - [TL;DR](#tldr)
   - [Updates](#updates)
     - [v4.0.0](#v400)
-    - [v3.0.0](#v300)
+    - [v3.0.0](#v300)v
   - [Architectures](#architectures)
-  - [Configuration options](#configuration-options)
+  - [Configuration options](#configuration-options)k
     - [General options](#general-options)
       - [Inbound debugging](#inbound-debugging)
       - [`ALLOWED_SENDER_DOMAINS` and `ALLOW_EMPTY_SENDER_DOMAINS`](#allowed_sender_domains-and-allow_empty_sender_domains)
@@ -628,6 +628,7 @@ Chart configuration is as follows:
 | `service.spec` | `{}` | Additional service specifications |
 | `service.nodePort` | *empty* | Use a specific `nodePort` |
 | `service.nodeIP` | *empty* | Use a specific `nodeIP` |
+| `service.externalTrafficPolicy` | *empty* | Set `loadbalancer` [External traffic policy](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip) |
 | `resources` | `{}` | [Pod resources](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | `autoscaling.enabled` | `false` | Set to `true` to enable [Horisontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) |
 | `autoscaling.minReplicas` | `1` | Minimum number of replicas |
