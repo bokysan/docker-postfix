@@ -187,7 +187,7 @@ get_postconf() {
 	. <({ error=$({ result="$(postconf "${name}")"; } 2>&1; declare -p result >&2); declare -p error; } 2>&1)
 
 	if [[ -n "${error}" ]]; then
-		error: "Could not read variable ${emphasis}${name}${reset}: ${error}"
+		error "Could not read variable ${emphasis}${name}${reset}: ${error}"
 		return
 	fi
 
@@ -242,7 +242,7 @@ trim() {
 }
 
 ###################################################################
-# Potential fix for #180. Plugin names do not necessarily match 
+# Potential fix for #180. Plugin names do not necessarily match
 # filter names.
 #
 # This is an utility method which converts SASL plugin names into
