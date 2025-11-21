@@ -10,7 +10,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - uses: ./.github/actions/unit-tests
 
@@ -19,7 +19,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - uses: ./.github/actions/integration-tests
         with:
@@ -33,7 +33,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - uses: ./.github/actions/helm-chart-tests
 
@@ -43,7 +43,7 @@ jobs:
       - Helm_chart_Tests
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - uses: ./.github/actions/build-postfix-exporter
         with:
@@ -60,7 +60,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       # Buildkit setup
       - uses: ./.github/actions/buildx-setup
@@ -123,7 +123,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       # Buildkit setup
       - uses: ./.github/actions/buildx-setup
@@ -178,7 +178,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       # Buildkit setup
       - uses: ./.github/actions/buildx-setup
