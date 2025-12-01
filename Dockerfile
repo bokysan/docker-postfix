@@ -68,3 +68,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --start-interval=2s -
 
 EXPOSE     587
 CMD        [ "/bin/sh", "-c", "/scripts/run.sh" ]
+
+ENTRYPOINT ["/tini", "--"]

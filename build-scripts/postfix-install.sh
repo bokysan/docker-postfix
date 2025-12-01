@@ -36,7 +36,9 @@ do_alpine() {
 		opendkim-utils \
 		rsyslog \
 		supervisor \
-		tzdata
+		tzdata \
+		tini
+	ln -s /sbin/tini /tini
 }
 
 
@@ -83,9 +85,11 @@ do_ubuntu() {
 		rsyslog \
 		sasl2-bin \
 		supervisor \
-		tzdata
+		tzdata \
+		tini
 	apt-get clean
 	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+	ln -s /usr/bin/tini /tini
 }
 
 if [ -f /etc/alpine-release ]; then
