@@ -42,20 +42,13 @@ export DEBIAN_FRONTEND=noninteractive
 export arch="$(uname -m)"
 export skip_msal=""
 
-if [[ "${ID:-}" != "alpine" ]]; then
-	if [[ "${arch}" != "386" ]] && [[ "${arch}" != "i386" ]] && [[ "${arch}" != "mips64el" ]]; then
-		skip_msal="1"
-		echo "Running on ${ID}/${arch}: ${skip_msal}"
-	else
-		echo "Running on ${ID}/${arch}: Installing msal"
-	fi
+if ([[ "${ID:-}" == "alpine" ]] \
+        && ( [[ "${arch}" == "386" ]] || [[ "${arch}" == "i386" ]] ) ) \
+    || [[ "${arch}" == "mips64el" ]]; then
+	skip_msal="1"
+	echo "Running on ${ID}/${arch}: Skipping msal install: ${skip_msal}"
 else
-	if [[ "${arch}" != "mips64el" ]]; then
-		skip_msal="1"
-		echo "Running on ${ID}/${arch}: ${skip_msal}"
-	else
-		echo "Running on ${ID}/${arch}: ${skip_msal}"
-	fi
+	echo "Running on ${ID}/${arch}: Installing msal"
 fi
 
 # Build the sasl2 library with the sasl-xoauth2 plugin.
