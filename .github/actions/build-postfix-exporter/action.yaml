@@ -68,8 +68,7 @@ runs:
         push: true
         tags: '${{ inputs.tags }}'
         labels: ${{ steps.meta.outputs.labels }}
-        platforms: "linux/amd64,linux/arm/v5,linux/arm/v7,linux/arm64/v8,linux/mips64le"
-        #platforms: "linux/amd64,linux/arm/v5,linux/arm/v7,linux/arm64/v8,linux/mips64le,linux/ppc64le,linux/s390x"
+        platforms: "linux/amd64,linux/arm/v7,linux/arm64/v8"
         cache-from: type=local,src=/tmp/.buildx-cache/postfix-exporter,mode=max,compression=estargz
         cache-to: type=local,dest=/tmp/.buildx-cache-new/postfix-exporter
 

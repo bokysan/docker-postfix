@@ -89,7 +89,6 @@ jobs:
           context: .
           push: true
           tags: |
-            boky/postfix:edge
             boky/postfix:edge-alpine
           # linux/s390x: "rsyslog (no such package)"
           # Latest Alpine does not have all the packages for 386 anymore. :-(
@@ -114,6 +113,32 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  Snyk_Scan_Alpine:
+    runs-on: ubuntu-latest
+    needs:
+      - Build_Alpine
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js (for Snyk)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk auth $SNYK_TOKEN
+
+      - name: Run Snyk container test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk container test --exclude-base-image-vulns --docker boky/postfix:edge-alpine --file=./Dockerfile
 
   Build_Ubuntu:
     runs-on: ubuntu-latest
@@ -170,6 +195,32 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+  Snyk_Scan_Ubuntu:
+    runs-on: ubuntu-latest
+    needs:
+      - Build_Ubuntu
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js (for Snyk)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk auth $SNYK_TOKEN
+
+      - name: Run Snyk container test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk container test --exclude-base-image-vulns --docker boky/postfix:edge-ubuntu --file=./Dockerfile
+
   Build_Debian:
     runs-on: ubuntu-latest
     needs:
@@ -202,7 +253,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: boky/postfix:edge-debian
+          tags: |
+            boky/postfix:edge
+            boky/postfix:edge-debian
           # Notice: linux/ppc64le (temporarily) removed, as building the SASL library crashes with:
           # [ 55%] Building CXX object src/CMakeFiles/sasl-xoauth2-static.dir/http.cc.o
           # [ 61%] Building CXX object src/CMakeFiles/sasl-xoauth2-static.dir/log.cc.o
@@ -214,14 +267,39 @@ jobs:
           # make[2]: *** [src/CMakeFiles/sasl-xoauth2-static.dir/build.make:149: src/CMakeFiles/sasl-xoauth2-static.dir/token_store.cc.o] Error 4
           # make[1]: *** [CMakeFiles/Makefile2:169: src/CMakeFiles/sasl-xoauth2-static.dir/all] Error 2
           # make: *** [Makefile:166: all] Error 2
-          platforms: "linux/386,linux/arm/v5,linux/arm/v7,linux/arm64/v8,linux/amd64,linux/arm64,linux/mips64le,linux/s390x"
+          platforms: "linux/386,linux/arm/v5,linux/arm/v7,linux/arm64/v8,linux/amd64,linux/arm64,linux/s390x"
           cache-from: type=local,src=/tmp/.buildx-cache/debian,mode=max,compression=estargz
           cache-to: type=local,dest=/tmp/.buildx-cache-new/debian
           build-args: |
-            BASE_IMAGE=debian:bookworm-slim
+            BASE_IMAGE=debian:trixie-slim
 
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+  Snyk_Scan_Debian:
+    runs-on: ubuntu-latest
+    needs:
+      - Build_Debian
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js (for Snyk)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk auth $SNYK_TOKEN
+
+      - name: Run Snyk container test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk container test --exclude-base-image-vulns --docker boky/postfix:edge-debian --file=./Dockerfile

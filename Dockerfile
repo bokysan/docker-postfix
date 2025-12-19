@@ -8,7 +8,7 @@
 # - use Alpine if you're strapped for space. But beware it uses MUSL LIBC, so unicode support might be an issue.
 # - use Debian if you're interested in the greatest cross-platform compatibility. It is larger than Alpine, though.
 # - use Ubuntu if, well, Ubuntu is your thing and you're used to the buntu ecosystem.
-ARG BASE_IMAGE=debian:bookworm-slim
+ARG BASE_IMAGE=debian:trixie-slim
 
 FROM ${BASE_IMAGE} AS build-scripts
 COPY ./build-scripts ./build-scripts

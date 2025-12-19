@@ -108,6 +108,32 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+  Snyk_Scan_Alpine:
+    runs-on: ubuntu-latest
+    needs:
+      - Build_Alpine
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js (for Snyk)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk auth $SNYK_TOKEN
+
+      - name: Run Snyk container test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk container test --exclude-base-image-vulns --docker boky/postfix:${{ env.RELEASE_VERSION }}-alpine
+
   Build_Ubuntu:
     runs-on: ubuntu-latest
     needs:
@@ -158,6 +184,33 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+  Snyk_Scan_Ubuntu:
+    runs-on: ubuntu-latest
+    needs:
+      - Build_Ubuntu
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js (for Snyk)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk auth $SNYK_TOKEN
+
+      - name: Run Snyk container test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk container test --exclude-base-image-vulns --docker boky/postfix:${{ env.RELEASE_VERSION }}-ubuntu
+
+
   Build_Debian:
     runs-on: ubuntu-latest
     needs:
@@ -200,16 +253,42 @@ jobs:
             boky/postfix:${{ env.RELEASE_VERSION_NO_v }}
             boky/postfix:${{ env.RELEASE_VERSION }}-debian
             boky/postfix:${{ env.RELEASE_VERSION_NO_v }}-debian
-          platforms: "linux/386,linux/arm/v5,linux/arm/v7,linux/arm64/v8,linux/amd64,linux/arm64,linux/mips64le,linux/ppc64le,linux/s390x"
+          platforms: "linux/386,linux/arm/v5,linux/arm/v7,linux/arm64/v8,linux/amd64,linux/arm64,linux/ppc64le,linux/s390x"
           cache-from: type=local,src=/tmp/.buildx-cache/debian,mode=max,compression=estargz
           cache-to: type=local,dest=/tmp/.buildx-cache-new/debian
           build-args: |
-            BASE_IMAGE=debian:bookworm-slim
+            BASE_IMAGE=debian:trixie-slim
 
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  Snyk_Scan_Debian:
+    runs-on: ubuntu-latest
+    needs:
+      - Build_Debian
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js (for Snyk)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk auth $SNYK_TOKEN
+
+      - name: Run Snyk container test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk container test --exclude-base-image-vulns --docker boky/postfix:${{ env.RELEASE_VERSION }}-debian
 
 
   Release:
@@ -218,9 +297,9 @@ jobs:
       - Unit_Tests
       - Integration_Tests
       - Helm_chart_Tests
-      - Build_Alpine
-      - Build_Ubuntu
-      - Build_Debian
+      - Snyk_Scan_Alpine
+      - Snyk_Scan_Ubuntu
+      - Snyk_Scan_Debian
 
     steps:
       # Checkout
@@ -250,6 +329,7 @@ jobs:
         id: Changelog
         env:
           REPO: ${{ github.repository }}
+
       # TODO: Include the changelog in Chart.yml as annotations.artifacthub.io/changes
       # See more here: https://artifacthub.io/docs/topics/annotations/helm/#supported-annotations
 
