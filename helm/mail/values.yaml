@@ -121,7 +121,12 @@ deployment:
   annotations: {}
 
 pod:
-  securityContext: {}
+  securityContext:
+  # Default setup
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
   # capabilities:
   #   drop:
   #   - ALL
@@ -133,7 +138,11 @@ pod:
 
 container:
   postfix:
-    securityContext: {}
+    securityContext:
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: true
 
 certs:
   # Auto-generate certificates for the server and mount them into Postfix volume

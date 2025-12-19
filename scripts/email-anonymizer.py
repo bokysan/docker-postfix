@@ -17,6 +17,7 @@ import typing
 import json
 import sys
 import importlib
+import inspect
 from urllib.parse import parse_qs
 import hashlib
 import hmac
@@ -324,13 +325,41 @@ def get_filter() -> Filter:
     logger.debug(f"Constructing new {clazz} filter.")
 
     try:
+        # Basic validation of names to avoid injection via crafted module/class strings
+        # Only allow simple Python identifiers for class name and dotted module names.
+        import re as _re
+
         if "." in clazz:
             module_name, class_name = clazz.rsplit(".", 1)
-            filter_class = getattr(importlib.import_module(module_name), class_name)
-            filter_obj: Filter = filter_class()
+
+            if not _re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*", module_name):
+                raise RuntimeError(f"Invalid module name '{module_name}'")
+            if not _re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", class_name):
+                raise RuntimeError(f"Invalid class name '{class_name}'")
+
+            module = importlib.import_module(module_name)
+            filter_class = getattr(module, class_name, None)
         else:
-            filter_class = getattr(sys.modules[__name__], clazz)
-            filter_obj: Filter = filter_class()
+            class_name = clazz
+            if not _re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", class_name):
+                raise RuntimeError(f"Invalid class name '{class_name}'")
+
+            filter_class = getattr(sys.modules[__name__], class_name, None)
+
+        if filter_class is None:
+            raise RuntimeError(f'Could not find filter named "{clazz}"!')
+
+        if not inspect.isclass(filter_class):
+            raise RuntimeError(f'Filter "{clazz}" is not a class')
+
+        if not issubclass(filter_class, Filter):
+            raise RuntimeError(f'Filter "{clazz}" is not a subclass of Filter')
+
+        filter_obj: Filter = filter_class()
+
+        # Ensure the instantiated object is actually a Filter instance
+        if not isinstance(filter_obj, Filter):
+            raise RuntimeError(f'Filter "{clazz}" is not an instance of Filter')
     except Exception as e:
         raise RuntimeError(f'Could not instatiate filter named "{clazz}"!') from e
 
