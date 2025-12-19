@@ -417,6 +417,8 @@ postfix_setup_relayhost() {
 postfix_setup_xoauth2_pre_setup() {
 	file_env 'XOAUTH2_CLIENT_ID'
 	file_env 'XOAUTH2_SECRET'
+	file_env 'XOAUTH2_INITIAL_ACCESS_TOKEN'
+	file_env 'XOAUTH2_INITIAL_REFRESH_TOKEN'
 	if [ -n "$XOAUTH2_CLIENT_ID" ] || [ -n "$XOAUTH2_SECRET" ]; then
 		cat <<EOF > /etc/sasl-xoauth2.conf
 {

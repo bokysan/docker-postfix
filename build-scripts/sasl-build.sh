@@ -66,8 +66,16 @@ fi
 # postfix-sasl-xoauth2-update-ca-certs script is installed into the /etc/ca-certificates/update.d directory.
 # This script is run by the update-ca-certificates command to update the list of trusted certificates.
 build_sasl2() {
-	git clone --depth 1 --branch ${SASL_XOAUTH2_GIT_REF} ${SASL_XOAUTH2_REPO_URL} /sasl-xoauth2
-	cd /sasl-xoauth2
+	if [[ "${SASL_XOAUTH2_GIT_REF}" =~ [a-z0-9]{40} ]]; then
+		# It's a specific commit that we're after
+		git clone --depth 1 ${SASL_XOAUTH2_REPO_URL} /sasl-xoauth2
+		cd /sasl-xoauth2
+		git checkout ${SASL_XOAUTH2_GIT_REF}
+	else
+		# It's a branch
+		git clone --depth 1 --branch ${SASL_XOAUTH2_GIT_REF} ${SASL_XOAUTH2_REPO_URL} /sasl-xoauth2
+		cd /sasl-xoauth2
+	fi
 	mkdir build
 	cd build
 	# Documentation build (now) requires pandoc, which is not available on multiple

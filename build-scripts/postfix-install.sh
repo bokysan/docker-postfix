@@ -36,7 +36,9 @@ do_alpine() {
 		opendkim-utils \
 		rsyslog \
 		supervisor \
-		tzdata
+		tzdata \
+		tini
+	ln -s /sbin/tini /tini
 }
 
 
@@ -65,6 +67,19 @@ do_ubuntu() {
 	if [ "$(apt-cache search --names-only '^libcurl4t64$')" != "" ]; then
 		libcurl="libcurl4t64"
 	fi
+	JSONCPP_PKG=$(
+	    apt-cache search '^libjsoncpp[0-9]+$' \
+    	| awk '{print $1}' \
+    	| sort -V \
+    	| tail -n1
+	)
+	if [ "${JSONCPP_PKG}" != "" ]; then
+		RELEASE_SPECIFIC_PACKAGES="${RELEASE_SPECIFIC_PACKAGES} ${JSONCPP_PKG}"
+	else
+		echo "No libjsoncpp runtime package available"
+    	exit 1
+	fi
+
 	apt-get install -y \
 		${libcurl} ${RELEASE_SPECIFIC_PACKAGES} \
 		bash \
@@ -73,7 +88,6 @@ do_ubuntu() {
 		cron \
 		curl \
 		dnsutils \
-		libjsoncpp25 \
 		logrotate \
 		net-tools \
 		netcat-openbsd \
@@ -83,9 +97,11 @@ do_ubuntu() {
 		rsyslog \
 		sasl2-bin \
 		supervisor \
-		tzdata
+		tzdata \
+		tini
 	apt-get clean
 	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+	ln -s /usr/bin/tini /tini
 }
 
 if [ -f /etc/alpine-release ]; then

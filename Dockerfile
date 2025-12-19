@@ -8,7 +8,7 @@
 # - use Alpine if you're strapped for space. But beware it uses MUSL LIBC, so unicode support might be an issue.
 # - use Debian if you're interested in the greatest cross-platform compatibility. It is larger than Alpine, though.
 # - use Ubuntu if, well, Ubuntu is your thing and you're used to the buntu ecosystem.
-ARG BASE_IMAGE=debian:bookworm-slim
+ARG BASE_IMAGE=debian:trixie-slim
 
 FROM ${BASE_IMAGE} AS build-scripts
 COPY ./build-scripts ./build-scripts
@@ -31,8 +31,13 @@ RUN        --mount=type=cache,target=/var/cache/apt,sharing=locked,id=var-cache-
 FROM base AS sasl
 
 ARG TARGETPLATFORM
+
 ARG SASL_XOAUTH2_REPO_URL=https://github.com/tarickb/sasl-xoauth2.git
-ARG SASL_XOAUTH2_GIT_REF=release-0.25
+
+# Pending release 0.26, we are pulling the latest "well-known" commit from the master
+# as [build fails](https://github.com/bokysan/docker-postfix/actions/runs/20154830240/job/57855111679?pr=255#step:6:427)
+#ARG SASL_XOAUTH2_GIT_REF=release-0.25
+ARG SASL_XOAUTH2_GIT_REF=dc77ca4fb9a4e283d738dcbd6710e693454d9fcf
 
 RUN        --mount=type=cache,target=/var/cache/apt,sharing=locked,id=var-cache-apt-$TARGETPLATFORM \
            --mount=type=cache,target=/var/lib/apt,sharing=locked,id=var-lib-apt-$TARGETPLATFORM \
@@ -68,3 +73,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --start-interval=2s -
 
 EXPOSE     587
 CMD        [ "/bin/sh", "-c", "/scripts/run.sh" ]
+
+ENTRYPOINT ["/tini", "--"]

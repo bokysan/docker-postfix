@@ -122,6 +122,14 @@ by ISPs, already occupied by other services, and in general should only be used 
 
 ## Updates
 
+### v5.0.0
+
+Image has been updated to [Debian Trixie](https://www.debian.org/releases/trixie/) and with that `linux/mips64le` is gone. To prevent
+failures during upgrade, major version has been bumped. New versions of go do not provide images for `linux/arm/v5` either, so building
+of `postfix-exporter` for this platform is gone as well.
+
+Several other fixes went into this release as well.
+
 ### v4.0.0
 
 Several potentially "surprising" changes went into this issue and hence warrant a version upgrade:
@@ -140,7 +148,7 @@ Several potentially "surprising" changes went into this issue and hence warrant 
   third-party project. Checkout is from master branch, based
   on specific SHA commit id. The same hash is used for master and tags.
 - **Architecture galore!** With the addition of debian images, we now support support more architectures than ever. The list includes: 
-  `linux/386`, `linux/amd64`, `linux/arm/v5`, `linux/arm/v6`, `linux/arm/v7`, `linux/arm64`, `linux/arm64/v8`, `linux/mips64le`, 
+  `linux/386`, `linux/amd64`, `linux/arm/v5`, `linux/arm/v6`, `linux/arm/v7`, `linux/arm64`, `linux/arm64/v8`,
   `linux/ppc64le` and `linux/s390x`.
 - **`smtpd_tls_security_level` is now set to `may`**. If you encounter
   issues, try setting it to `none` explicitly (see [#160](https://github.com/bokysan/docker-postfix/issues/160)).
