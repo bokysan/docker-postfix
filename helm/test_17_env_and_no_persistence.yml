@@ -1,0 +1,6 @@
+extraEnv:
+  - name: HELLO
+    value: WORLD
+
+persistence:
+  enabled: false

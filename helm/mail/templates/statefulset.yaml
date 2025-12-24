@@ -7,6 +7,10 @@
 {{- $serviceAccountName := include (print $chart ".serviceAccountName") . -}}
 {{- $kind := "StatefulSet" -}}
 {{- $root := . -}}
+{{- $env := .Values.extraEnv | default (list) }}
+{{- if not .Values.persistence.enabled }}
+{{- $env = concat $env ( list ( dict "name" "K8S_STATEFULSET_PERSISTENCE_ENABLED" "value" "false" ) ) }}
+{{- end }}
 apiVersion: apps/v1
 kind: {{ $kind | quote }}
 metadata:
@@ -81,11 +85,7 @@ spec:
             {{- if .Values.lifecycle.postStart }}
             postStart: {{- toYaml .Values.lifecycle.postStart | nindent 14 }}
             {{- end }}
-          {{- if not .Values.persistence.enabled }}
-          env:
-            - name: K8S_STATEFULSET_PERSISTENCE_ENABLED
-              value: "false"
-          {{- end }}
+          {{ with $env }}env: {{- toYaml . | nindent 12 }}{{ end }}
           envFrom:
             - configMapRef:
                 name: {{ $fullName | quote }}
@@ -97,7 +97,6 @@ spec:
             - secretRef:
                 name: {{ .Values.existingSecret | quote }}
             {{- end }}
-          {{ with .Values.extraEnv }}env: {{- toYaml . | nindent 12 }}{{ end }}
           volumeMounts:
             - mountPath: /var/spool/postfix
               name: {{ $fullName | quote }}
