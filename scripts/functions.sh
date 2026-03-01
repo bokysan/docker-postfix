@@ -341,19 +341,24 @@ postfix_set_hostname() {
     local ip
     local hostname
 	do_postconf -# myhostname
-	if [[ -z "$POSTFIX_myhostname" ]] && [[ "${AUTOSET_HOSTNAME}" == "1" ]]; then
+	if [[ -n "$POSTFIX_myhostname" ]] && [[ "${AUTOSET_HOSTNAME}" == "1" ]]; then
 		warn "Both ${emphasis}POSTFIX_myhostname${reset} and ${emphasis}AUTOSET_HOSTNAME${reset} are set. ${emphasis}POSTFIX_myhostname${reset} will take precedence and ${emphasis}AUTOSET_HOSTNAME${reset} will be ignored."
 	fi
 
 	if [[ -z "$POSTFIX_myhostname" ]]; then
-		POSTFIX_myhostname="${HOSTNAME}"
-	elif [[ "${AUTOSET_HOSTNAME}" == "1" ]]; then
-		ip=$(get_public_ip)
-		hostname=$(dig +short -x $IP)
-		# Remove the trailing dot
-		hostname="${hostname%.}"
-		notice "Automatically setting Postfix hostname to ${emphasis}${hostname}${reset} based on your public IP address ${emphasis}${ip}${reset}..."
-		POSTFIX_myhostname="${hostname}"
+		if [[ "${AUTOSET_HOSTNAME}" == "1" ]]; then
+			get_public_ip
+			ip="${DETECTED_PUBLIC_IP}"
+			if [[ -n "${ip}" ]]; then
+				hostname=$(dig +short -x $ip)
+				# Remove the trailing dot
+				hostname="${hostname%.}"
+				notice "Automatically setting Postfix hostname to ${emphasis}${hostname}${reset} based on your public IP address ${emphasis}${ip}${reset}..."
+				POSTFIX_myhostname="${hostname}"
+			fi
+		else
+			POSTFIX_myhostname="${HOSTNAME}"
+		fi
 	fi
 }
 
