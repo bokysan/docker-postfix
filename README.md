@@ -95,7 +95,7 @@ helm repo add bokysan https://bokysan.github.io/docker-postfix/
 helm upgrade --install --set persistence.enabled=false --set config.general.ALLOW_EMPTY_SENDER_DOMAINS=yes mail bokysan/mail
 ```
 
-You can also find this image at [ArtifactHub](https://artifacthub.io/packages/helm/docker-postfix/mail).
+You can also find the Helm chart at [ArtifactHub](https://artifacthub.io/packages/helm/docker-postfix/mail).
 
 
 You can now send emails by using `localhost:1587` (on Docker) as your SMTP server address. Note that if you haven't configured your domain
