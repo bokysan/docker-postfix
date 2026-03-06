@@ -45,12 +45,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Get version number from tag
+        uses: ./.github/actions/get-release-version
+
       - uses: ./.github/actions/build-postfix-exporter
         with:
           DOCKER_ACCESS_TOKEN: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
           tags: |
             boky/postfix-exporter:latest
             boky/postfix-exporter:edge
+            boky/postfix-exporter:${{ env.RELEASE_VERSION }}
+            boky/postfix-exporter:${{ env.RELEASE_VERSION_NO_v }}
 
   Build_Alpine:
     runs-on: ubuntu-latest
