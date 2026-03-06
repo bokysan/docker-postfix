@@ -29,9 +29,6 @@ runs:
         cd postfix_exporter
         git apply ../postfix-exporter-*.patch
 
-    # Buildkit setup
-    - uses: ./.github/actions/buildx-setup
-
     # Docker hub login
     - uses: ./.github/actions/docker-hub-login
       with:

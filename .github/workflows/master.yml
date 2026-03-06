@@ -45,6 +45,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      # Buildkit setup
+      - uses: ./.github/actions/buildx-setup
+
       - uses: ./.github/actions/build-postfix-exporter
         with:
           DOCKER_ACCESS_TOKEN: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
