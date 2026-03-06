@@ -65,7 +65,7 @@ jobs:
           if command -v update-binfmts; then update-binfmts --enable; fi
 
       - name: Build Alpine
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: false
