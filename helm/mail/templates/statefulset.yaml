@@ -140,7 +140,7 @@ spec:
         {{- if .Values.metrics.enabled }}
         - name: exporter
           imagePullPolicy: Always
-          image: "{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag | default "latest" }}"
+          image: "{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag | default .Chart.AppVersion }}"
           ports:
             - containerPort: {{ .Values.metrics.port }}
               name: metrics
