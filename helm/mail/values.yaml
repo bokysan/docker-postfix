@@ -42,7 +42,7 @@ metrics:
   path: /metrics
   image:
     repository: "boky/postfix-exporter"
-    tag: "latest"
+    # tag: "" # If not specified uses chart's AppVersion as the tag
 
   # Warning: Metrics needs a file to work. If you're using this DO NOT override POSTFIX_maillog_file.
   # If you do, metrics *will not work*. If you need to log to file:
