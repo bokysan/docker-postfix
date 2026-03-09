@@ -4,6 +4,11 @@ on:
   pull_request:
     branches: [ 'master' ]
 
+env:
+  ALPINE_IMAGE: alpine:latest
+  UBUNTU_IMAGE: ubuntu:noble
+  DEBIAN_IMAGE: debian:trixie-slim
+
 jobs:
   Unit_Tests:
     runs-on: ubuntu-latest
@@ -76,4 +81,4 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache/alpine
 
           build-args: |
-            BASE_IMAGE=alpine:latest
+            BASE_IMAGE=${{ env.ALPINE_IMAGE }}

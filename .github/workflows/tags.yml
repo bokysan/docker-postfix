@@ -4,6 +4,11 @@ on:
   push:
     tags: [ 'v*.*.*' ]
 
+env:
+  ALPINE_IMAGE: alpine:latest
+  UBUNTU_IMAGE: ubuntu:noble
+  DEBIAN_IMAGE: debian:trixie-slim
+
 jobs:
   Unit_Tests:
     runs-on: ubuntu-latest
@@ -105,7 +110,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache/alpine,mode=max,compression=estargz
           cache-to: type=local,dest=/tmp/.buildx-cache-new/alpine
           build-args: |
-            BASE_IMAGE=alpine:latest
+            BASE_IMAGE=${{ env.ALPINE_IMAGE }}
 
       - name: Move cache
         run: |
@@ -139,7 +144,7 @@ jobs:
       - name: Run Snyk container test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-alpine
+        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-alpine --build-arg BASE_IMAGE=${{ env.ALPINE_IMAGE }}
 
   Build_Ubuntu:
     runs-on: ubuntu-latest
@@ -184,7 +189,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache/ubuntu,mode=max,compression=estargz
           cache-to: type=local,dest=/tmp/.buildx-cache-new/ubuntu
           build-args: |
-            BASE_IMAGE=ubuntu:noble
+            BASE_IMAGE=${{ env.UBUNTU_IMAGE }}
 
       - name: Move cache
         run: |
@@ -218,7 +223,7 @@ jobs:
       - name: Run Snyk container test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-ubuntu
+        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-ubuntu --build-arg BASE_IMAGE=${{ env.UBUNTU_IMAGE }}
 
 
   Build_Debian:
@@ -267,7 +272,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache/debian,mode=max,compression=estargz
           cache-to: type=local,dest=/tmp/.buildx-cache-new/debian
           build-args: |
-            BASE_IMAGE=debian:trixie-slim
+            BASE_IMAGE=${{ env.DEBIAN_IMAGE }}
 
       - name: Move cache
         run: |
@@ -301,7 +306,7 @@ jobs:
       - name: Run Snyk container test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-debian
+        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-debian --build-arg BASE_IMAGE=${{ env.DEBIAN_IMAGE }}
 
 
   Release:
