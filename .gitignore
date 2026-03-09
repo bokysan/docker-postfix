@@ -7,3 +7,6 @@ gh-pages/
 cache
 postfix_exporter/
 logrotate/
+
+# Ignore macOS droppings
+.DS_Store
