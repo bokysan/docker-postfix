@@ -144,7 +144,7 @@ jobs:
       - name: Run Snyk container test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-alpine --build-arg BASE_IMAGE=${{ env.ALPINE_IMAGE }}
+        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-alpine # --build-arg BASE_IMAGE=${{ env.ALPINE_IMAGE }}
 
   Build_Ubuntu:
     runs-on: ubuntu-latest
@@ -223,7 +223,7 @@ jobs:
       - name: Run Snyk container test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-ubuntu --build-arg BASE_IMAGE=${{ env.UBUNTU_IMAGE }}
+        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-ubuntu # --build-arg BASE_IMAGE=${{ env.UBUNTU_IMAGE }}
 
 
   Build_Debian:
@@ -306,7 +306,7 @@ jobs:
       - name: Run Snyk container test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-debian --build-arg BASE_IMAGE=${{ env.DEBIAN_IMAGE }}
+        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-debian # --build-arg BASE_IMAGE=${{ env.DEBIAN_IMAGE }}
 
 
   Release:
