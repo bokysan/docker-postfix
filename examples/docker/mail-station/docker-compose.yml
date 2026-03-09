@@ -5,7 +5,6 @@
 # is used for authentication here. The example is not complete, but should give you a general
 # overview of how flexible the image is.
 #
-version: "3.8"
 services:
   solr: # solr is used by Dovecot for full-text search and indexing
     image: solr:7.7

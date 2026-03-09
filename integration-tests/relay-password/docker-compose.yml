@@ -1,4 +1,3 @@
-version: '3.7'
 services:
   postfix_test_587:
     hostname: "postfix"
