@@ -106,6 +106,7 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
   labels: {}
   annotations: {}
+  behavior: {}
 
 nodeSelector: {}
 tolerations: []

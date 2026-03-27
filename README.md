@@ -649,6 +649,7 @@ Chart configuration is as follows:
 | `autoscaling.targetMemoryUtilizationPercentage` | `""` | When to scale up |
 | `autoscaling.labels` | `{}` | Additional HPA labels |
 | `autoscaling.annotations` | `{}` | Additional HPA annotations |
+| `autoscaling.behavior` | `{}` | [Configurable scaling behavior](https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/#configurable-scaling-behavior) |
 | `nodeSelector` | `{}` | Standard Kubernetes stuff |
 | `tolerations` | `[]` | Standard Kubernetes stuff |
 | `affinity` | `{}` | Standard Kubernetes stuff |
