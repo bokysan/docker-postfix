@@ -856,7 +856,7 @@ Getting all of this to work properly is not a small feat:
 There are may other project offering similar functionality. The aim of this project, however, is:
 
 * to make it as simple as possible to run the relay, without going too much into postfix configuration details
-* to make the image as small as possible (hence basing on Alpine linux)
+* to make the image as small as possible
 * to make the image and the corresponding code testable
 
 The other projects are, in completely random order:
