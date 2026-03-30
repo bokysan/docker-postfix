@@ -127,7 +127,7 @@ by ISPs, already occupied by other services, and in general should only be used 
 
 Image has been updated to [Debian Trixie](https://www.debian.org/releases/trixie/) and with that `linux/mips64le` is gone. To prevent
 failures during upgrade, major version has been bumped. New versions of go do not provide images for `linux/arm/v5` and it's not really
-supported that wall on Debian any more, so this architecture is dropped as well.
+supported that well on Debian any more, so this architecture is dropped as well.
 
 Several other fixes went into this release as well. Full list is available on the [releases](https://github.com/bokysan/docker-postfix/releases/tag/v5.0.0) page.
 
