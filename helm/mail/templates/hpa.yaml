@@ -42,6 +42,10 @@ spec:
           type: Utilization
           averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
   {{- end }}
+  {{- with .Values.autoscaling.behavior }}
+  behavior:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else }}
   {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
     - type: Resource
