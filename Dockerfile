@@ -52,12 +52,7 @@ FROM sasl
 LABEL maintainer="Bojan Cekrlic - https://github.com/bokysan/docker-postfix/"
 
 # Set up configuration
-COPY       /configs/supervisord.conf     /etc/supervisord.conf
-COPY       /configs/rsyslog*.conf        /etc/
-COPY       /configs/opendkim.conf        /etc/opendkim/opendkim.conf
-COPY       /configs/smtp_header_checks   /etc/postfix/smtp_header_checks
-COPY       /configs/master.cf            /etc/postfix/master.cf
-COPY       /scripts/*                    /scripts/
+COPY       image_root/  /
 
 RUN        chmod +x /scripts/*
 
