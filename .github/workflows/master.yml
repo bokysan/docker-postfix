@@ -15,7 +15,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - uses: ./.github/actions/unit-tests
 
@@ -24,7 +24,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - uses: ./.github/actions/integration-tests
         with:
@@ -38,7 +38,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - uses: ./.github/actions/helm-chart-tests
 
@@ -48,7 +48,7 @@ jobs:
       - Helm_chart_Tests
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # Buildkit setup
       - uses: ./.github/actions/buildx-setup
@@ -67,7 +67,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # Buildkit setup
       - uses: ./.github/actions/buildx-setup
@@ -141,7 +141,7 @@ jobs:
       - Build_Alpine
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Node.js (for Snyk)
         uses: actions/setup-node@v6
@@ -169,7 +169,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # Buildkit setup
       - uses: ./.github/actions/buildx-setup
@@ -222,7 +222,7 @@ jobs:
       - Build_Ubuntu
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Node.js (for Snyk)
         uses: actions/setup-node@v6
@@ -250,7 +250,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # Buildkit setup
       - uses: ./.github/actions/buildx-setup
@@ -314,7 +314,7 @@ jobs:
       - Build_Debian
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Node.js (for Snyk)
         uses: actions/setup-node@v6
