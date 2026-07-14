@@ -13,6 +13,7 @@ services:
       FORCE_COLOR: "1"
       ALLOWED_SENDER_DOMAINS: "example.org"
       DKIM_AUTOGENERATE: "true"
+      OPENDKIM_Canonicalization: "relaxed/relaxed"
       POSTFIX_smtpd_end_of_data_restrictions: "check_client_access static:discard"
   tests:
     image: "boky/postfix-integration-test"

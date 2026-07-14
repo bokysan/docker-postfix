@@ -54,10 +54,20 @@ LABEL maintainer="Bojan Cekrlic - https://github.com/bokysan/docker-postfix/"
 # Set up configuration
 COPY       image_root/  /
 
-RUN        chmod +x /scripts/*
+RUN        true && \
+           cp -r /etc/postfix /etc/postfix.default && \
+           chmod +x /scripts/* && \
+           true
 
 # Set up volumes
-VOLUME     [ "/var/spool/postfix", "/etc/postfix", "/etc/opendkim/keys" ]
+VOLUME     [ \
+    "/etc/rsyslog.d/" \
+    "/etc/rsyslog.d-before/" \
+    "/etc/rsyslog.d-metrics/" \
+    "/var/spool/postfix", \
+    "/etc/postfix", \
+    "/etc/opendkim/keys" \
+]
 
 # Run supervisord
 USER       root

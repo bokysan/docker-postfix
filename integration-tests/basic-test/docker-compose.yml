@@ -13,8 +13,13 @@ services:
     volumes:
       - "./test-keys:/etc/opendkim/keys"
       - "./docker-init.d:/docker-init.d/"
+    tmpfs:
+      - "/tmp/"
+      - "/var/spool/postfix"
+      - "/etc/postfix"
     environment:
       FORCE_COLOR: "1"
+      OPENDKIM_Canonicalization: "relaxed/relaxed"
       ALLOWED_SENDER_DOMAINS: "example.org"
   tests:
     image: "boky/postfix-integration-test"

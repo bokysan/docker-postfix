@@ -2,7 +2,6 @@
 set -e
 
 ./build.sh --load --tag boky/postfix
-cd integration-tests
 
 FIND="$(which find)"
 
@@ -25,12 +24,20 @@ fi
 
 run_test() {
     local exit_code
+    local dir
+
+    if [[ -f "$1" ]]; then
+        dir="$(dirname "$1")"
+    else
+        dir="$1"
+    fi
+
     echo
     echo
-    echo "☆☆☆☆☆☆☆☆☆☆ $1 ☆☆☆☆☆☆☆☆☆☆"
+    echo "☆☆☆☆☆☆☆☆☆☆ $dir ☆☆☆☆☆☆☆☆☆☆"
     echo
     (
-        cd "$1"
+        cd "$dir"
         set +e
         $DOCKER_COMPOSE up --build --abort-on-container-exit --exit-code-from tests
         exit_code="$?"
@@ -43,12 +50,32 @@ run_test() {
     )
 }
 
+run_single_test() {
+    if [[ -d "$1" ]]; then
+        TEST="$($FIND "$1" -regextype posix-extended -regex '.*/(docker-)?compose\.ya?ml' -print -quit | head -n1)"
+        if [[ -f "$TEST" ]]; then
+            run_test "$TEST"
+        else
+            echo "Error: Can't find compose file in $1" >&2
+            exit 2
+        fi
+    elif [[ -f "$1" ]]; then
+        run_test "$1"
+    elif [[ ! "$var" =~ ^integration-tests/ ]]; then
+        run_single_test "integration-tests/$1"
+    else
+        echo "Error: Can't find test $1" >&2
+        exit 2
+    fi
+}
+
 if [[ $# -gt 0 ]]; then
     while [[ -n "$1" ]]; do
-        run_test "$1"
+        run_single_test "$1"
         shift
     done
 else
+    cd integration-tests
     for i in `${FIND} -maxdepth 1 -type d | grep -Ev "^./(tester|xoauth2)" | sort`; do
         i="$(basename "$i")"
         if [ "$i" == "." ] || [ "$i" == ".." ]; then

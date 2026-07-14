@@ -66,6 +66,33 @@ check_environment_sane() (
 		exit
 	fi
 
+	# Fix for #286: Needed if running from a read-only image. 
+	if [[ ! -f /tmp/rsyslog.conf ]]; then
+		cp /etc/rsyslog.conf /tmp/rsyslog.conf
+	fi
+
+	if [[ ! -d /etc/postfix ]]; then
+		mkdir -p /etc/postfix
+	fi
+
+	for f in /etc/postfix.default/*.cf; do
+		fn="$(basename "$f")"
+		if [[ ! -f "/etc/postfix/$fn" ]]; then
+			cp "$f" "/etc/postfix/"
+		fi
+	done
+
+	for f in /etc/postfix.default/sasl /etc/postfix.default/postfix-files.d; do
+		if [[ ! -d "$f" ]]; then
+			continue
+		fi
+		fn="$(basename "$f")"
+		if [[ ! -d "/etc/postfix/$fn" ]]; then
+			cp -r "$f" "/etc/postfix/"
+		fi
+	done
+
+
 )
 
 rsyslog_log_format() {
@@ -74,7 +101,7 @@ rsyslog_log_format() {
 		log_format="plain"
 	fi
 	info "Using ${emphasis}${log_format}${reset} log format for rsyslog."
-	sed -i -E "s/<log-format>/${log_format}/" /etc/rsyslog.conf
+	sed -i -E "s/<log-format>/${log_format}/" /tmp/rsyslog.conf
 }
 
 logrotate_remove_duplicate_mail_log() {
@@ -102,7 +129,7 @@ anon_email_log() {
 	fi
 	if [[ -n "${anon_email}" && "${anon_email}" != "0" ]]; then
 		notice "Using ${emphasis}${anon_email}${reset} filter for email anonymization."
-		sed -i -E "s/<anon-email-format>/${anon_email}/" /etc/rsyslog.conf
+		sed -i -E "s/<anon-email-format>/${anon_email}/" /tmp/rsyslog.conf
 		sed -i -E '
 		/^\s*#\s*<email-anonymizer>\s*$/,/^\s*#\s*<\/email-anonymizer>\s*$/{
 			/^\s*#\s*<email-anonymizer>\s*$/n
@@ -110,7 +137,7 @@ anon_email_log() {
 			s/(\s*)#(.*)$/\1\2/g
 			}
 		}
-		' /etc/rsyslog.conf
+		' /tmp/rsyslog.conf
 	else
 		notice "Emails in the logs will not be anonymized. Set ${emphasis}ANONYMIZE_EMAILS${reset} to enable this feature."
 	fi
