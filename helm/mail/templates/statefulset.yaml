@@ -148,7 +148,7 @@ spec:
               name: metrics
               protocol: TCP
           command:
-            - /bin/sh -c 'while true; do /bin/postfix_exporter; sleep 1; done'
+            - /bin/postfix_exporter
           args:
             - "--web.listen-address"
             - {{ print "0.0.0.0:" .Values.metrics.port | quote }}

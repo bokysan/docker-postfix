@@ -29,9 +29,9 @@ setup_timezone() {
 	if [[ ! -z "$TZ" ]]; then
 		TZ_FILE="$(zone_info_dir)/$TZ"
 		if [ -f "$TZ_FILE" ]; then
-			notice "Setting container timezone to: ${emphasis}$TZ${reset}"
+			infohelm "Setting container timezone to: ${emphasis}$TZ${reset}"
 			if ! ln -snf "$TZ_FILE" /etc/localtime 2>/dev/null || ! echo "$TZ" > /etc/timezone; then
-				warn "Running from a read-only file system, most likely. Can't link ${emphasis}/etc/localtime${reset} or write to ${emphasis}/etc/timezone${reset}. Bind them yourself."
+				notice "Running from a read-only file system, most likely. Can't link ${emphasis}/etc/localtime${reset} or write to ${emphasis}/etc/timezone${reset}. Bind them yourself."
 			fi
 		else
 			warn "Cannot set timezone to: ${emphasis}$TZ${reset} -- this timezone does not exist."
@@ -837,6 +837,14 @@ postfix_custom_commands() {
 	for setting in ${!POSTFIX_*}; do
 		key="${setting:8}"
 		value="${!setting}"
+
+		# Skip settings which are injected automatically by Kubernetes because of the pod name and are not really
+		# Postfix settings, e.g.
+		# POSTFIX_MAIL_SERVICE_PORT_SMTP=587
+		if [[ "$key" =~ ^MAIL(_[A-Z0-9]+)+ ]]; then
+			continue
+		fi
+
 		if [ -n "${value}" ]; then
 			info "Applying custom postfix setting: ${emphasis}${key}=${value}${reset}"
 			if [ "${key}" == "maillog_dir" ]; then
