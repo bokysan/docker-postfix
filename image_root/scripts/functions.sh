@@ -4,14 +4,20 @@ announce_startup() (
 	local postfix_account opendkim_account
 
 	DISTRO="unknown"
-	[ -f /etc/lsb-release ] && . /etc/lsb-release
-	[ -f /etc/os-release ] && . /etc/os-release
-	if [ -f /etc/alpine-release ]; then
+	[[ -f /etc/lsb-release ]] && . /etc/lsb-release
+	[[ -f /etc/os-release ]] && . /etc/os-release
+	[[ -f /etc/docker-postfix_release ]] && . /etc/docker-postfix_release
+
+	if [[ -f /etc/alpine-release ]]; then
 		DISTRO="alpine"
 	else
 		DISTRO="${ID}"
 	fi
 	echo -e "${gray}${emphasis}★★★★★ ${reset}${lightblue}POSTFIX STARTING UP${reset} ${gray}(${reset}${emphasis}${DISTRO}${reset}${gray})${emphasis} ★★★★★${reset}"
+
+	if [[ -n "${DOCKER_POSTFIX_BUILT_AT}" ]]; then
+		debug "Image built at ${emphasis}${DOCKER_POSTFIX_BUILT_AT}${reset}"
+	fi
 
 	postfix_account="$(cat /etc/passwd | grep -E "^postfix" | cut -f3-4 -d:)"
 	opendkim_account="$(cat /etc/passwd | grep -E "^opendkim" | cut -f3-4 -d:)"
@@ -24,8 +30,9 @@ setup_timezone() {
 		TZ_FILE="$(zone_info_dir)/$TZ"
 		if [ -f "$TZ_FILE" ]; then
 			notice "Setting container timezone to: ${emphasis}$TZ${reset}"
-			ln -snf "$TZ_FILE" /etc/localtime
-			echo "$TZ" > /etc/timezone
+			if ! ln -snf "$TZ_FILE" /etc/localtime 2>/dev/null || ! echo "$TZ" > /etc/timezone; then
+				warn "Running from a read-only file system, most likely. Can't link ${emphasis}/etc/localtime${reset} or write to ${emphasis}/etc/timezone${reset}. Bind them yourself."
+			fi
 		else
 			warn "Cannot set timezone to: ${emphasis}$TZ${reset} -- this timezone does not exist."
 		fi
@@ -58,6 +65,16 @@ check_environment_sane() (
 		fi
 	fi
 
+	if [[ ! -d /tmp ]]; then
+		mkdir /tmp
+	fi
+	chmod 1777 /tmp
+
+	if [[ ! -d /var/run ]]; then
+		mkdir /var/run
+	fi
+	chmod 1777 /var/run
+
 	if touch /tmp/test; then
 		debug "/tmp writable."
 		rm /tmp/test
@@ -89,6 +106,17 @@ check_environment_sane() (
 		fn="$(basename "$f")"
 		if [[ ! -d "/etc/postfix/$fn" ]]; then
 			cp -r "$f" "/etc/postfix/"
+		fi
+	done
+
+	if [[ ! -d /etc/opendkim/keys ]]; then
+		mkdir -p /etc/opendkim/keys
+	fi
+
+	for f in /etc/opendkim.default/*.conf; do
+		fn="$(basename "$f")"
+		if [[ ! -f "/etc/opendkim/$fn" ]]; then
+			cp "$f" "/etc/opendkim/"
 		fi
 	done
 
@@ -307,9 +335,11 @@ postfix_upgrade_daemon_directory() {
 
 	if [[ ! -d "${daemon_directory}" ]]; then
 		error "Your ${emphasis}daemon_directory${reset} is set to ${emphasis}${daemon_directory}${reset} but it does not exist. Postfix startup will most likely fail."
-	else
+	elif [[ "$(stat -c '%U:%G' "${daemon_directory}")" != "root:root" ]]; then
 		# Ensure that daemon_directory is owned by root
-		chown root:root "${daemon_directory}"
+		if ! chown root:root "${daemon_directory}"; then
+			warn "Cannot reown ${emphasis}${daemon_directory}${reset} to ${emphasis}root:root${reset} -- most likely a read-only filesystem. You might encounter issues."
+		fi
 	fi
 }
 

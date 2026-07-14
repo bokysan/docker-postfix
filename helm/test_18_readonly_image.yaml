@@ -1,0 +1,24 @@
+container:
+    postfix:
+        securityContext:
+            readOnlyRootFilesystem: true
+
+extraVolumes:
+    - name: postfix-data
+      emptyDir: {}
+    - name: opendkim-data
+      emptyDir: {}
+    - name: var-run
+      emptyDir: {}
+    - name: var-lib-postfix
+      emptyDir: {}
+
+extraVolumeMounts:
+    - name: postfix-data
+      mountPath: /etc/postfix
+    - name: opendkim-data
+      mountPath: /etc/opendkim
+    - name: var-run
+      mountPath: /var/run
+    - name: var-lib-postfix
+      mountPath: /var/lib/postfix

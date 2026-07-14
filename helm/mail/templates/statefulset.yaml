@@ -135,6 +135,8 @@ spec:
               mountPath: {{ .Values.mountSecret.path }}
               readOnly: true
             {{- end }}
+            - name: tmp-volume-postfix
+              mountPath: /tmp
             {{- if .Values.extraVolumeMounts }}{{- toYaml .Values.extraVolumeMounts | nindent 12 }}{{ end }}
           resources: {{ toYaml .Values.resources | nindent 12 }}
         {{- if .Values.metrics.enabled }}
@@ -146,7 +148,7 @@ spec:
               name: metrics
               protocol: TCP
           command:
-            - /bin/postfix_exporter
+            - /bin/sh -c 'while true; do /bin/postfix_exporter; sleep 1; done'
           args:
             - "--web.listen-address"
             - {{ print "0.0.0.0:" .Values.metrics.port | quote }}
@@ -157,7 +159,7 @@ spec:
             - "--postfix.showq_path"
             - {{ print "/var/spool/postfix/public/showq" | quote }}
           volumeMounts:
-            - name: tmp
+            - name: tmp-volume-metrics
               mountPath: /tmp
             - name: {{ $fullName | quote }}
               mountPath: /var/spool/postfix
@@ -191,8 +193,16 @@ spec:
       dnsConfig: {{- toYaml (omit .Values.dns "policy") | nindent 8 }}
       {{- end }}
       volumes:
-        - name: tmp
-          emptyDir: {}
+        - name: tmp-volume-postfix
+          emptyDir:
+            medium: Memory
+            sizeLimit: 128Mi
+        {{- if .Values.metrics.enabled }}
+        - name: tmp-volume-metrics
+          emptyDir:
+            medium: Memory
+            sizeLimit: 128Mi
+        {{- end }}
         {{- if or .Values.certs.create .Values.certs.existingSecret }}
         - name: certs-init
           configMap:

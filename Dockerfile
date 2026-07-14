@@ -56,7 +56,10 @@ COPY       image_root/  /
 
 RUN        true && \
            cp -r /etc/postfix /etc/postfix.default && \
+           cp -r /etc/opendkim /etc/opendkim.default && \
            chmod +x /scripts/* && \
+           postalias /etc/aliases && \
+           echo "DOCKER_POSTFIX_BUILT_AT=\"$(date "+%Y-%m-%dT%H:%M:%S%z")\"" >> /etc/docker-postfix_release \
            true
 
 # Set up volumes
@@ -64,7 +67,9 @@ VOLUME     [ \
     "/etc/rsyslog.d/" \
     "/etc/rsyslog.d-before/" \
     "/etc/rsyslog.d-metrics/" \
+    "/var/run/", \
     "/var/spool/postfix", \
+    "/var/lib/postfix", \
     "/etc/postfix", \
     "/etc/opendkim/keys" \
 ]
