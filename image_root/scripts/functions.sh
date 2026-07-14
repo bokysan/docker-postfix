@@ -775,6 +775,7 @@ opendkim_custom_commands() {
 	local key
 	local padded_key
 	local value
+	local delim=$'\x01'
 	for setting in ${!OPENDKIM_*}; do
 		key="${setting:9}"
 		value="${!setting}"
@@ -786,7 +787,7 @@ opendkim_custom_commands() {
 			fi
 			if cat /etc/opendkim/opendkim.conf | egrep -q "^[[:space:]]*#?[[:space:]]*${key}"; then
 				info "Updating custom OpenDKIM setting: ${emphasis}${key}=${value}${reset}"
-				sed -i -E "s/^[ \t]*#?[ \t]*${key}[ \t]*.+$/${padded_key}${value}/" /etc/opendkim/opendkim.conf
+				sed -i -E "s${delim}^[ \t]*#?[ \t]*${key}[ \t]*.+\$${delim}${padded_key}${value}${delim}" /etc/opendkim/opendkim.conf
 			else
 				info "Adding custom OpenDKIM setting: ${emphasis}${key}=${value}${reset}"
 				echo "Adding ${padded_key}${value}"
