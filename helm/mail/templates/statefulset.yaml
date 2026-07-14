@@ -206,8 +206,11 @@ spec:
         {{- if and .Values.persistence.enabled .Values.persistence.existingClaim }}
         - name: {{ $fullName }}
           persistentVolumeClaim:
-            {{- with .Values.persistence.existingClaim }}
+            {{- if .Values.persistence.existingClaim -}}{{- with .Values.persistence.existingClaim }}
             claimName: {{ tpl . $ }}
+            {{- end }}
+            {{- else }}
+            claimName: {{ $fullName }}
             {{- end }}
         {{- else if not .Values.persistence.enabled }}
         - name: {{ $fullName }}

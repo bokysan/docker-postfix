@@ -35,7 +35,8 @@ do_the_test() {
     local i="${1}" v
     printf '%s' "${gray}☆☆☆☆☆☆☆☆☆☆${reset} ${orange_emphasis}$i${reset}: ${gray}☆☆☆☆☆☆☆☆☆☆${reset}"
     echo
-    for v in 1.22.9 1.29.4 1.32.10 1.33.6 1.34.2; do
+    # Test only non-EOL versions
+    for v in 1.33.13 1.34.9 1.36.2; do
         printf '%s' "${emphasis}${lightblue}k8s v${v}${reset}${lightblue}... ${reset}"
         helm template -f "${i}" --kube-version "${v}" --dry-run=client mail > fixtures/demo.yaml
         ${DOCKER} run \
