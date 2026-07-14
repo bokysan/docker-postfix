@@ -1,11 +1,11 @@
 #!/usr/bin/env bats
 
-load /code/scripts/common.sh
-load /code/scripts/functions.sh
+load /code/image_root/scripts/common.sh
+load /code/image_root/scripts/functions.sh
 
 @test "check if filter gets injected into rsyslog" {
-	mkdir -p /etc/
-	cat > /etc/rsyslog.conf <<-EOF
+	mkdir -p /tmp/
+	cat > /tmp/rsyslog.conf <<-EOF
 	$ModLoad immark.so # provides --MARK-- message capability
 	$ModLoad imuxsock.so # provides support for local system logging (e.g. via logger command)
 
@@ -74,14 +74,14 @@ load /code/scripts/functions.sh
 
 	local ANONYMIZE_EMAILS=1
 	anon_email_log
-	if ! grep -F "email-anonymizer.sh default" /etc/rsyslog.conf | grep -F -v "#"; then
+	if ! grep -F "email-anonymizer.sh default" /tmp/rsyslog.conf | grep -F -v "#"; then
 		echo "rsyslog.conf is not updated properly; 'email-anonymizer.sh default' commented out!" >&2
-		cat /etc/rsyslog.conf >&2
+		cat /tmp/rsyslog.conf >&2
 		exit 1
 	fi
-	if ! grep -F 'module(load="mmexternal")' /etc/rsyslog.conf | grep -F -v "#"; then
+	if ! grep -F 'module(load="mmexternal")' /tmp/rsyslog.conf | grep -F -v "#"; then
 		echo "rsyslog.conf is not updated properly; 'module(load=\"mmexternal\") commented out!" >&2
-		cat /etc/rsyslog.conf >&2
+		cat /tmp/rsyslog.conf >&2
 		exit 1
 	fi
 }

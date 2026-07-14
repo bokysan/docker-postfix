@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-load /code/scripts/common.sh
+load /code/image_root/scripts/common.sh
 
 assert_equals() {
 	local expected="$1"

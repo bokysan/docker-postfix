@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
-load /code/scripts/common.sh
-load /code/scripts/functions.sh
+load /code/image_root/scripts/common.sh
+load /code/image_root/scripts/functions.sh
 
 @test "check if SMTPD_SASL_USERS works with and without domain" {
 	local db_file

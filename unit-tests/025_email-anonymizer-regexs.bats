@@ -38,7 +38,7 @@ EOF
 	for index in "${!EMAILS[@]}"; do
 		email="${EMAILS[$index]}"
 		email=${email%$'\n'} # Remove trailing new line
-		result="$(echo "$email" | /code/scripts/email-anonymizer.sh paranoid)"
+		result="$(echo "$email" | /code/image_root/scripts/email-anonymizer.sh paranoid)"
 		result=${result%$'\n'} # Remove trailing new line
 		expected="${EXPECTED[$index]}"
 		expected=${expected%$'\n'} # Remove trailing new line

@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-load /code/scripts/common.sh
+load /code/image_root/scripts/common.sh
 
 @test "check if 'mail' when DKIM_SELECTOR is not defined" {
 	result="$(get_dkim_selector)"

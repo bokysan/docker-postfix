@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
-load /code/scripts/common.sh
-load /code/scripts/functions.sh
+load /code/image_root/scripts/common.sh
+load /code/image_root/scripts/functions.sh
 
 declare default_logrotate_conf_path
 declare rsyslog_logrotate_conf_path
@@ -73,7 +73,7 @@ EOF
 	chmod 0644 "$default_logrotate_conf_path"
 	rm -f "$rsyslog_logrotate_conf_path"
 
-	run su nobody -s /bin/bash -c '. /code/scripts/common.sh; . /code/scripts/functions.sh; logrotate_remove_duplicate_mail_log'
+	run su nobody -s /bin/bash -c '. /code/image_root/scripts/common.sh; . /code/image_root/scripts/functions.sh; logrotate_remove_duplicate_mail_log'
 	[ "$status" -eq 0 ]
 	grep -q '^/var/log/mail.log' "$default_logrotate_conf_path"
 }
@@ -90,7 +90,7 @@ EOF
 EOF
 	chmod 0644 "$rsyslog_logrotate_conf_path"
 
-	run su nobody -s /bin/bash -c '. /code/scripts/common.sh; . /code/scripts/functions.sh; logrotate_remove_duplicate_mail_log'
+	run su nobody -s /bin/bash -c '. /code/image_root/scripts/common.sh; . /code/image_root/scripts/functions.sh; logrotate_remove_duplicate_mail_log'
 	[ "$status" -eq 0 ]
 	grep -q '^/var/log/mail.log' "$rsyslog_logrotate_conf_path"
 }

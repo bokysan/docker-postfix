@@ -1,10 +1,10 @@
 #!/usr/bin/env bats
 
-load /code/scripts/common.sh
-load /code/scripts/functions.sh
+load /code/image_root/scripts/common.sh
+load /code/image_root/scripts/functions.sh
 
 mkdir -p /etc/opendkim
-cp /code/configs/opendkim.conf /etc/opendkim/opendkim.conf
+cp /code/image_root/etc/opendkim/opendkim.conf /etc/opendkim/opendkim.conf
 chown -R opendkim:opendkim /etc/opendkim
 
 @test "check if private keys are readable by OpenDKIM" {
@@ -13,7 +13,9 @@ chown -R opendkim:opendkim /etc/opendkim
 
     local DKIM_AUTOGENERATE=1
     local ALLOWED_SENDER_DOMAINS=example.org
+    local OPENDKIM_Mode=sv
     postfix_setup_dkim
+    opendkim_custom_commands
 
     postfix check
 
