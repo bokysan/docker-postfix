@@ -19,6 +19,7 @@ services:
   ldap:
     hostname: "ldap"
     image: "thoteam/slapd-server-mock"
+    platform: linux/amd64
     restart: always
     healthcheck:
       test: [ "CMD-SHELL", "bash -c 'exec 6<> /dev/tcp/localhost/389'" ]

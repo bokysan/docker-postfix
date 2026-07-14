@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 set -e
 
-chmod +x /scripts/*.sh
+for script in /scripts/*.sh; do
+    if [ -x "$script" ]; then # If the script is already executable skip it
+        continue 
+    elif ! chmod +x "$script"; then # If no, try to make it executable
+        echo "Error: Failed to make $script executable." >&2
+        exit 1
+    fi
+done
+
 . /scripts/common.sh
 . /scripts/functions.sh
 

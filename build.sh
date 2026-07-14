@@ -19,6 +19,21 @@ if command -v docker >/dev/null 2>&1; then
     DOCKER="docker"
 elif command -v podman >/dev/null 2>&1; then
     DOCKER="podman"
+
+    # Check if we are on macOS ('Darwin') where a podman machine is required
+    if [ "$(uname)" = "Darwin" ]; then
+        # Check the status of the podman machine
+        # 'podman machine status' returns 'Currently running', 'Not running', etc.
+        # If it's initialized but not running, start it.
+        MACHINE_STATUS=$(podman machine inspect | grep '"State"' 2>/dev/null)
+        
+        if echo "$MACHINE_STATUS" | grep -q "stopped"; then
+            echo "Podman machine is stopped. Starting it now..."
+            podman machine start
+        elif [ -z "$MACHINE_STATUS" ]; then
+            echo "Warning: No Podman machine found. You might need to run 'podman machine init'."
+        fi
+    fi
 else
     echo "Neither `docker` or `podman` installed. Cannot execute tests."
     exit 1

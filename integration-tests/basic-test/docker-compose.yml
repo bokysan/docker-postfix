@@ -3,6 +3,7 @@ services:
     hostname: "postfix"
     image: "boky/postfix"
     restart: always
+    read_only: true
     healthcheck:
       test: [ "CMD", "sh", "-c", "netstat -an | fgrep 587 | fgrep -q LISTEN" ]
       interval: 10s

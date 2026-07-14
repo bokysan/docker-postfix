@@ -36,7 +36,7 @@ ARG SASL_XOAUTH2_REPO_URL=https://github.com/tarickb/sasl-xoauth2.git
 # Pending release 0.26, we are pulling the latest "well-known" commit from the master
 # as [build fails](https://github.com/bokysan/docker-postfix/actions/runs/20154830240/job/57855111679?pr=255#step:6:427)
 #ARG SASL_XOAUTH2_GIT_REF=release-0.25
-ARG SASL_XOAUTH2_GIT_REF=dc77ca4fb9a4e283d738dcbd6710e693454d9fcf
+ARG SASL_XOAUTH2_GIT_REF=1f5d78cae6fc0debe4f485c1571c67dfccb04466
 
 RUN        --mount=type=cache,target=/var/cache/apt,sharing=locked,id=var-cache-apt-$TARGETPLATFORM \
            --mount=type=cache,target=/var/lib/apt,sharing=locked,id=var-lib-apt-$TARGETPLATFORM \
