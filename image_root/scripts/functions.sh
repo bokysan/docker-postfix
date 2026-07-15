@@ -269,7 +269,7 @@ postfix_enable_chroot() {
 
 postfix_upgrade_default_database_type() {
 	# Debian (and Ubuntu?) defalt to "hash:" and "btree:" database types. These have been removed from Alpine due to
-	# licence issues. To ensure compatiblity across images of this service across different distributions, we just
+	# license issues. To ensure compatibility across images of this service across different distributions, we just
 	# select "lmdb:" as the default database type -- this should be supported in every distro.
 	local default_database_type="$(get_postconf "default_database_type")"	
 
@@ -317,7 +317,7 @@ postfix_upgrade_daemon_directory() {
 	local dir_alpine="/usr/libexec/postfix"  # Alpine
 
 
-	# Some people will keep the configuration of postfix on an external drive, although this is not strictly necessary by this
+	# Some people will keep the configuration of postfix on an external drive, although this is not strictly required by this
 	# image. And when they switch between different distributions (Alpine -> Debian and vice versa), the image will fail with the
 	# old configuration. This is a quick and dirty check to solve this issue so we don't get issues like these:
 	# https://github.com/bokysan/docker-postfix/issues/147

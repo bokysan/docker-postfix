@@ -50,16 +50,19 @@ RUN        --mount=type=cache,target=/var/cache/apt,sharing=locked,id=var-cache-
 # ============================ Prepare main image ============================
 FROM sasl
 LABEL maintainer="Bojan Cekrlic - https://github.com/bokysan/docker-postfix/"
+ARG TARGETPLATFORM
 
 # Set up configuration
 COPY       image_root/  /
 
 RUN        true && \
-           cp -r /etc/postfix /etc/postfix.default && \
-           cp -r /etc/opendkim /etc/opendkim.default && \
-           chmod +x /scripts/* && \
+           if [ -d /etc/postfix ]; then cp -r /etc/postfix /etc/postfix.default; fi && \
+           if [ -d /etc/opendkim ]; then cp -r /etc/opendkim /etc/opendkim.default; fi && \
+           if [ -d /etc/rspamd ]; then cp -r /etc/rspamd /etc/rspamd.default; fi && \
            if [ -f /etc/aliases ]; then postalias /etc/aliases; fi && \
+           chmod +x /scripts/* && \
            echo "DOCKER_POSTFIX_BUILT_AT=\"$(date "+%Y-%m-%dT%H:%M:%S%z")\"" >> /etc/docker-postfix_release \
+           echo "DOCKER_POSTFIX_TARGETPLATFORM=\${TARGETPLATFORM}" >> /etc/docker-postfix_release \
            true
 
 # Set up volumes
@@ -71,6 +74,7 @@ VOLUME     [ \
     "/var/spool/postfix", \
     "/var/lib/postfix", \
     "/etc/postfix", \
+    "/etc/rspamd/", \
     "/etc/opendkim/keys" \
 ]
 
