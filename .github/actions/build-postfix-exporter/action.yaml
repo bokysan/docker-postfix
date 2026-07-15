@@ -9,10 +9,6 @@ inputs:
     description: 'Docker image tags'
     required: true
 
-env:
-  DOCKERHUB_REPO: boky/postfix-exporter
-  #GHCR_REPO: ghcr.io/bokysan/postfix-exporter
-
 runs:
   using: "composite"
   steps:
@@ -35,20 +31,15 @@ runs:
         DOCKER_ACCESS_TOKEN: '${{ inputs.DOCKER_ACCESS_TOKEN }}'
 
     # GitHub container registry login
-    #- name: Login to GHCR
-    #  uses: docker/login-action@v3
-    #  with:
-    #    registry: ghcr.io
-    #    username: ${{ github.repository_owner }}
-    #    password: ${{ secrets.GITHUB_TOKEN }}
+    - uses: ./.github/actions/ghcr-login
 
     - name: Docker meta
       id: meta
       uses: docker/metadata-action@v5
       with:
         images: |
-          ${{ env.DOCKERHUB_REPO }}
-#          ${{ env.GHCR_REPO }}
+          boky/postfix-exporter
+          ghcr.io/bokysan/postfix-exporter
 
     - name: Cache Docker layers
       uses: actions/cache@v4

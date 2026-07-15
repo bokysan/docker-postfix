@@ -44,6 +44,9 @@ jobs:
 
   Build_PostfixExporter:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs:
       - Helm_chart_Tests
     steps:
@@ -60,9 +63,15 @@ jobs:
             boky/postfix-exporter:latest
             boky/postfix-exporter:${{ env.RELEASE_VERSION }}
             boky/postfix-exporter:${{ env.RELEASE_VERSION_NO_v }}
+            ghcr.io/bokysan/postfix-exporter:latest
+            ghcr.io/bokysan/postfix-exporter:${{ env.RELEASE_VERSION }}
+            ghcr.io/bokysan/postfix-exporter:${{ env.RELEASE_VERSION_NO_v }}
 
   Build_Alpine:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs:
       - Unit_Tests
       - Integration_Tests
@@ -81,6 +90,9 @@ jobs:
       - uses: ./.github/actions/docker-hub-login
         with:
           DOCKER_ACCESS_TOKEN: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+
+      # GitHub container registry login
+      - uses: ./.github/actions/ghcr-login
 
       - name: Cache Docker layers
         uses: actions/cache@v5
@@ -104,6 +116,11 @@ jobs:
             boky/postfix:latest-alpine
             boky/postfix:${{ env.RELEASE_VERSION }}-alpine
             boky/postfix:${{ env.RELEASE_VERSION_NO_v }}-alpine
+            ghcr.io/bokysan/postfix:latest-alpine
+            ghcr.io/bokysan/postfix:${{ env.RELEASE_VERSION }}-alpine
+            ghcr.io/bokysan/postfix:${{ env.RELEASE_VERSION_NO_v }}-alpine
+          labels: |
+            org.opencontainers.image.source=https://github.com/bokysan/docker-postfix
           # linux/s390x: "rsyslog (no such package)"
           # Latest Alpine does not have all packages for 386 any more :-(
           platforms: "linux/arm/v6,linux/arm/v7,linux/ppc64le,linux/amd64,linux/arm64"
@@ -148,6 +165,9 @@ jobs:
 
   Build_Ubuntu:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs:
       - Unit_Tests
       - Integration_Tests
@@ -167,6 +187,9 @@ jobs:
         with:
           DOCKER_ACCESS_TOKEN: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
 
+      # GitHub container registry login
+      - uses: ./.github/actions/ghcr-login
+
       - name: Cache Docker layers
         uses: actions/cache@v5
         with:
@@ -185,6 +208,11 @@ jobs:
             boky/postfix:latest-ubuntu
             boky/postfix:${{ env.RELEASE_VERSION }}-ubuntu
             boky/postfix:${{ env.RELEASE_VERSION_NO_v }}-ubuntu
+            ghcr.io/bokysan/postfix:latest-ubuntu
+            ghcr.io/bokysan/postfix:${{ env.RELEASE_VERSION }}-ubuntu
+            ghcr.io/bokysan/postfix:${{ env.RELEASE_VERSION_NO_v }}-ubuntu
+          labels: |
+            org.opencontainers.image.source=https://github.com/bokysan/docker-postfix
           platforms: "linux/arm/v7,linux/amd64,linux/arm64,linux/ppc64le,linux/s390x"
           cache-from: type=local,src=/tmp/.buildx-cache/ubuntu,mode=max,compression=estargz
           cache-to: type=local,dest=/tmp/.buildx-cache-new/ubuntu
@@ -228,6 +256,9 @@ jobs:
 
   Build_Debian:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs:
       - Unit_Tests
       - Integration_Tests
@@ -246,6 +277,9 @@ jobs:
       - uses: ./.github/actions/docker-hub-login
         with:
           DOCKER_ACCESS_TOKEN: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+
+      # GitHub container registry login
+      - uses: ./.github/actions/ghcr-login
 
       - name: Cache Docker layers
         uses: actions/cache@v5
@@ -268,6 +302,14 @@ jobs:
             boky/postfix:${{ env.RELEASE_VERSION_NO_v }}
             boky/postfix:${{ env.RELEASE_VERSION }}-debian
             boky/postfix:${{ env.RELEASE_VERSION_NO_v }}-debian
+            ghcr.io/bokysan/postfix:latest
+            ghcr.io/bokysan/postfix:latest-debian
+            ghcr.io/bokysan/postfix:${{ env.RELEASE_VERSION }}
+            ghcr.io/bokysan/postfix:${{ env.RELEASE_VERSION_NO_v }}
+            ghcr.io/bokysan/postfix:${{ env.RELEASE_VERSION }}-debian
+            ghcr.io/bokysan/postfix:${{ env.RELEASE_VERSION_NO_v }}-debian
+          labels: |
+            org.opencontainers.image.source=https://github.com/bokysan/docker-postfix
           platforms: "linux/386,linux/arm/v7,linux/arm64/v8,linux/amd64,linux/arm64,linux/ppc64le,linux/s390x"
           cache-from: type=local,src=/tmp/.buildx-cache/debian,mode=max,compression=estargz
           cache-to: type=local,dest=/tmp/.buildx-cache-new/debian
@@ -361,6 +403,17 @@ jobs:
         uses: WyriHaximus/github-action-helm3@v4
         with:
           exec: helm package --app-version "${RELEASE_VERSION_NO_v}" --version "${RELEASE_VERSION_NO_v}" --destination ./gh-pages helm/mail
+
+      - name: Push helm chart as OCI image to GitHub Container Registry
+        uses: WyriHaximus/github-action-helm3@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          exec: |
+            echo "${GITHUB_TOKEN}" | helm registry login ghcr.io --username "${{ github.actor }}" --password-stdin
+            helm push "./gh-pages/mail-${RELEASE_VERSION}.tgz" "oci://ghcr.io/bokysan/charts"
+            helm push "./gh-pages/mail-${RELEASE_VERSION_NO_v}.tgz" "oci://ghcr.io/bokysan/charts"
+            helm registry logout ghcr.io
 
       - name: Create helm chart index
         uses: WyriHaximus/github-action-helm3@v4

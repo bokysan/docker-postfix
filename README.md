@@ -86,6 +86,8 @@ To run the container, do the following:
 
 ```shell script
 docker run --rm --name postfix -e "ALLOWED_SENDER_DOMAINS=example.com" -p 1587:587 boky/postfix
+# or
+docker run --rm --name postfix -e "ALLOWED_SENDER_DOMAINS=example.com" -p 1587:587 ghcr.io/bokysan/postfix
 ```
 
 or
@@ -93,6 +95,8 @@ or
 ```shell script
 helm repo add bokysan https://bokysan.github.io/docker-postfix/
 helm upgrade --install --set persistence.enabled=false --set config.general.ALLOW_EMPTY_SENDER_DOMAINS=yes mail bokysan/mail
+# or, using the OCI registry:
+helm upgrade --install --set persistence.enabled=false --set config.general.ALLOW_EMPTY_SENDER_DOMAINS=yes mail oci://ghcr.io/bokysan/charts/mail
 ```
 
 You can also find the Helm chart at [ArtifactHub](https://artifacthub.io/packages/helm/docker-postfix/mail).
@@ -610,13 +614,19 @@ and `XOAUTH2_INITIAL_REFRESH_TOKEN`.
 ## Helm chart
 
 This image comes with its own helm chart. The chart versions are aligned with the releases of the image. Charts are hosted
-through this repository.
+through this repository and also published as an OCI artifact to the GitHub Container Registry.
 
 To install the image, simply do the following:
 
 ```shell script
 helm repo add bokysan https://bokysan.github.io/docker-postfix/
 helm upgrade --install --set persistence.enabled=false --set config.general.ALLOWED_SENDER_DOMAINS=example.com mail bokysan/mail
+```
+
+or, using the OCI registry:
+
+```shell script
+helm upgrade --install --set persistence.enabled=false --set config.general.ALLOWED_SENDER_DOMAINS=example.com mail oci://ghcr.io/bokysan/charts/mail
 ```
 
 Chart configuration is as follows:

@@ -44,6 +44,9 @@ jobs:
 
   Build_PostfixExporter:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs:
       - Helm_chart_Tests
     steps:
@@ -58,9 +61,13 @@ jobs:
           DOCKER_ACCESS_TOKEN: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
           tags: |
             boky/postfix-exporter:edge
+            ghcr.io/bokysan/postfix-exporter:edge
 
   Build_Alpine:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs:
       - Unit_Tests
       - Integration_Tests
@@ -76,6 +83,9 @@ jobs:
       - uses: ./.github/actions/docker-hub-login
         with:
           DOCKER_ACCESS_TOKEN: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+
+      # GitHub container registry login
+      - uses: ./.github/actions/ghcr-login
 
       - name: Cache Docker layers
         uses: actions/cache@v5
@@ -97,6 +107,9 @@ jobs:
           push: true
           tags: |
             boky/postfix:edge-alpine
+            ghcr.io/bokysan/postfix:edge-alpine
+          labels: |
+            org.opencontainers.image.source=https://github.com/bokysan/docker-postfix
           # linux/s390x: "rsyslog (no such package)"
           # Latest Alpine does not have all the packages for 386 anymore. :-(
           # Notice: linux/ppc64le (temporarily) removed, as building the SASL library crashes with:
@@ -163,6 +176,9 @@ jobs:
 
   Build_Ubuntu:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs:
       - Unit_Tests
       - Integration_Tests
@@ -179,6 +195,9 @@ jobs:
         with:
           DOCKER_ACCESS_TOKEN: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
 
+      # GitHub container registry login
+      - uses: ./.github/actions/ghcr-login
+
       - name: Cache Docker layers
         uses: actions/cache@v5
         with:
@@ -193,7 +212,11 @@ jobs:
         with:
           context: .
           push: true
-          tags: boky/postfix:edge-ubuntu
+          tags: |
+            boky/postfix:edge-ubuntu
+            ghcr.io/bokysan/postfix:edge-ubuntu
+          labels: |
+            org.opencontainers.image.source=https://github.com/bokysan/docker-postfix
           # Notice: linux/ppc64le (temporarily) removed, as building the SASL library crashes with:
           # [ 55%] Building CXX object src/CMakeFiles/sasl-xoauth2-static.dir/http.cc.o
           # [ 61%] Building CXX object src/CMakeFiles/sasl-xoauth2-static.dir/log.cc.o
@@ -244,6 +267,9 @@ jobs:
 
   Build_Debian:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs:
       - Unit_Tests
       - Integration_Tests
@@ -259,6 +285,9 @@ jobs:
       - uses: ./.github/actions/docker-hub-login
         with:
           DOCKER_ACCESS_TOKEN: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+
+      # GitHub container registry login
+      - uses: ./.github/actions/ghcr-login
 
       - name: Cache Docker layers
         uses: actions/cache@v5
@@ -277,6 +306,10 @@ jobs:
           tags: |
             boky/postfix:edge
             boky/postfix:edge-debian
+            ghcr.io/bokysan/postfix:edge
+            ghcr.io/bokysan/postfix:edge-debian
+          labels: |
+            org.opencontainers.image.source=https://github.com/bokysan/docker-postfix
           # Notice: linux/ppc64le (temporarily) removed, as building the SASL library crashes with:
           # [ 55%] Building CXX object src/CMakeFiles/sasl-xoauth2-static.dir/http.cc.o
           # [ 61%] Building CXX object src/CMakeFiles/sasl-xoauth2-static.dir/log.cc.o
