@@ -29,7 +29,7 @@ setup_timezone() {
 	if [[ ! -z "$TZ" ]]; then
 		TZ_FILE="$(zone_info_dir)/$TZ"
 		if [ -f "$TZ_FILE" ]; then
-			infohelm "Setting container timezone to: ${emphasis}$TZ${reset}"
+			info "Setting container timezone to: ${emphasis}$TZ${reset}"
 			if ! ln -snf "$TZ_FILE" /etc/localtime 2>/dev/null || ! echo "$TZ" > /etc/timezone; then
 				notice "Running from a read-only file system, most likely. Can't link ${emphasis}/etc/localtime${reset} or write to ${emphasis}/etc/timezone${reset}. Bind them yourself."
 			fi
