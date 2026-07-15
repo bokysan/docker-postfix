@@ -95,7 +95,7 @@ jobs:
       - uses: ./.github/actions/ghcr-login
 
       - name: Cache Docker layers
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: /tmp/.buildx-cache
           #key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile') }}
@@ -191,7 +191,7 @@ jobs:
       - uses: ./.github/actions/ghcr-login
 
       - name: Cache Docker layers
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: /tmp/.buildx-cache
           #key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile') }}
@@ -282,7 +282,7 @@ jobs:
       - uses: ./.github/actions/ghcr-login
 
       - name: Cache Docker layers
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: /tmp/.buildx-cache
           #key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile') }}
