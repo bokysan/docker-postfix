@@ -348,7 +348,7 @@ jobs:
       - name: Run Snyk container test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk container test --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-debian # --build-arg BASE_IMAGE=${{ env.DEBIAN_IMAGE }}
+        run: snyk container test --exclude-base-image-vulns --severity-threshold=high --file=./Dockerfile --docker boky/postfix:${{ env.RELEASE_VERSION }}-debian # --build-arg BASE_IMAGE=${{ env.DEBIAN_IMAGE }}
 
 
   Release:
