@@ -58,7 +58,7 @@ RUN        true && \
            cp -r /etc/postfix /etc/postfix.default && \
            cp -r /etc/opendkim /etc/opendkim.default && \
            chmod +x /scripts/* && \
-           postalias /etc/aliases && \
+           if [ -f /etc/aliases ]; then postalias /etc/aliases; fi && \
            echo "DOCKER_POSTFIX_BUILT_AT=\"$(date "+%Y-%m-%dT%H:%M:%S%z")\"" >> /etc/docker-postfix_release \
            true
 
