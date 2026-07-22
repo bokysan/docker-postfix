@@ -149,7 +149,7 @@ Several potentially "surprising" changes went into this issue and hence warrant 
 - **[`master`](https://github.com/bokysan/docker-postfix/tree/master/) branch now builds images called [`edge`](https://hub.docker.com/r/boky/postfix/tags?page=1&name=edge)**. 
   `latest` images are built from the last tag. We've had several issues with people using the `latest` tag
   and reporting problems. You can now rely on `latest` being the latest stable release.
-- Image now builds its own version of [postfix-exporter](https://github.com/kumina/postfix_exporter) and relies on this
+- Image now builds its own version of [postfix-exporter](https://github.com/Hsn723/postfix_exporter) and relies on this
   third-party project. Checkout is from master branch, based
   on specific SHA commit id. The same hash is used for master and tags.
 - **Architecture galore!** With the addition of debian images, we now support support more architectures than ever. The list includes:

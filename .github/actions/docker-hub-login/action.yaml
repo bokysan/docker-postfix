@@ -11,6 +11,7 @@ runs:
   steps:
     - name: Login to DockerHub
       uses: docker/login-action@v3
+      if: ${{ inputs.DOCKER_ACCESS_TOKEN != '' }}
       with:
         username: 'boky'
         password: '${{ inputs.DOCKER_ACCESS_TOKEN }}'

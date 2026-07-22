@@ -1,39 +1,31 @@
-diff --git a/Dockerfile b/Dockerfile
-index a3327d8..1cdfa84 100644
---- a/Dockerfile
-+++ b/Dockerfile
-@@ -1,4 +1,10 @@
--FROM golang:1.16 AS builder
+--- a/Dockerfile	2026-07-22 15:19:53
++++ b/Dockerfile	2026-07-22 15:21:19
+@@ -1,9 +1,27 @@
 +# syntax=docker/dockerfile:1.2
-+FROM golang:trixie AS builder
++# Step 1: Build the binary using Docker's native multi-platform Go support
++FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
 +ARG TARGETPLATFORM
 +ARG TARGETOS
 +ARG TARGETARCH
 +ARG TARGETVARIANT
 +
- WORKDIR /src
- 
- # avoid downloading the dependencies on succesive builds
-@@ -14,10 +20,18 @@ COPY . .
- 
- # Force the go compiler to use modules
- ENV GO111MODULE=on
--RUN go test
--RUN go build -o /bin/postfix_exporter
-+# go test fails (sometimes) because it relies on an external dependency:
-+#
-+# warning: SASL authentication failure: cannot connect to saslauthd server: Permission denied
-+# warning: SASL authentication failure: Password verification failed
-+# 732BB407C3: host mail.domain.com[1.1.1.1] said: 451 DT:SPM 163 mx13,P8CowECpNVM_oEVaenoEAQ--.23796S3 1514512449, please try again 15min later (in reply to end of DATA command)
-+#
-+# Since we are checking out a specific SHA hash and we know this tests have worked previously, we are quite certain that the code will work.
-+# Hence disabling the test here.
-+# RUN go test
-+RUN env GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" GOARM="$( echo "$TARGETVARIANT" | grep -E -o "\\d+$")" go build -ldflags '-extldflags "-static"'  -o /bin/postfix_exporter
- 
--FROM debian:latest
-+FROM scratch
++WORKDIR /app
++COPY . .
++
++# CGO_ENABLED=0 + -tags nosystemd: the sdjournal log source is cgo-only (it
++# links libsystemd), which can't be cross-compiled here. Upstream ships its
++# multi-arch binaries the same way; postfix logs come via a file, not journald.
++RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
++    go build -tags nosystemd -ldflags="-s -w" -o postfix_exporter .
++
++# Step 2: Final minimal image
+ FROM scratch
+ ARG TARGETPLATFORM
+ LABEL org.opencontainers.image.source="https://github.com/hsn723/postfix_exporter" \
+         org.opencontainers.image.authors="Hsn723" \
+         org.opencontainers.image.title="postfix_exporter"
  EXPOSE 9154
- WORKDIR /
- COPY --from=builder /bin/postfix_exporter /bin/
- 
+-COPY $TARGETPLATFORM/postfix_exporter /
++COPY --from=builder /app/postfix_exporter /postfix_exporter
+ COPY LICENSE /
+ ENTRYPOINT ["/postfix_exporter"]

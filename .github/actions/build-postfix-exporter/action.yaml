@@ -4,20 +4,36 @@ description: 'Build the latest version of postfix-exporter'
 inputs:
   DOCKER_ACCESS_TOKEN:
     description: 'DOCKER_ACCESS_TOKEN'
-    required: true
+    required: false
   tags:
     description: 'Docker image tags'
     required: true
+  push:
+    description: 'Push to docker registry'
+    required: false
+    default: true
 
 runs:
   using: "composite"
   steps:
+    # When a token is available (always on CI, and locally under `act` when
+    # act.sh could borrow one from the gh CLI): use actions/checkout.
     - name: Checkout
+      if: ${{ github.token != '' }}
       uses: actions/checkout@v4
       with:
-        repository: kumina/postfix_exporter
+        repository: Hsn723/postfix_exporter
         path: 'postfix_exporter'
-        ref: 'a6f58e9b2b2b4decc7e65c5a34b4fd53cd6665f1' # Latest commit we know that works
+        ref: 'v0.20.4' # Latest commit we know that works
+
+    # No token (e.g. local `act` run without an authenticated gh CLI): fall back
+    # to a plain anonymous clone so local development doesn't stall.
+    - name: Checkout (local, no token)
+      if: ${{ github.token == '' }}
+      shell: bash
+      run: |
+        git clone --depth 1 --branch v0.20.4 \
+          https://github.com/Hsn723/postfix_exporter postfix_exporter
 
     - name: Apply patches
       shell: bash
@@ -53,10 +69,10 @@ runs:
       uses: docker/build-push-action@v6
       with:
         context: postfix_exporter
-        push: true
+        push: ${{ inputs.push }}
         tags: '${{ inputs.tags }}'
         labels: ${{ steps.meta.outputs.labels }}
-        platforms: "linux/amd64,linux/arm/v7,linux/arm64/v8"
+        platforms: "linux/arm/v7,linux/amd64,linux/arm64,linux/riscv64,linux/ppc64le,linux/s390x"
         cache-from: type=local,src=/tmp/.buildx-cache/postfix-exporter,mode=max,compression=estargz
         cache-to: type=local,dest=/tmp/.buildx-cache-new/postfix-exporter
 

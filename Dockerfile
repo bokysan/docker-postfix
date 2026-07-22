@@ -50,6 +50,10 @@ RUN        --mount=type=cache,target=/var/cache/apt,sharing=locked,id=var-cache-
 # ============================ Prepare main image ============================
 FROM sasl
 LABEL maintainer="Bojan Cekrlic - https://github.com/bokysan/docker-postfix/"
+LABEL org.opencontainers.image.source="https://github.com/bokysan/docker-postfix/"
+LABEL org.opencontainers.image.authors="bokysan"
+LABEL org.opencontainers.image.title="docker-postfix"
+
 ARG TARGETPLATFORM
 
 # Set up configuration
