@@ -120,7 +120,7 @@ build_sasl2() {
 # (because they don't exist in the PIP repositories) and "pip install" will fail without rust. Specifically, this happens
 # when PIP is compiling cryptographic libraries.
 setup_rust() {
-	# On some exotic architectures it's impossible to install rust properly. In these cases, we skipp installation
+	# On some exotic architectures it's impossible to install rust properly. In these cases, we skip installation
 	# completely.
 	if [[ -z "${skip_msal}" ]]; then
 		curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal
