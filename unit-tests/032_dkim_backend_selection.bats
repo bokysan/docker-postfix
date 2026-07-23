@@ -27,6 +27,23 @@ load /code/image_root/scripts/functions.sh
 	[ "$status" -ne 0 ]
 }
 
+@test "DKIM_BACKEND falls back to opendkim when rspamd is unavailable (default)" {
+	# Simulate an architecture where rspamd is not installed.
+	command() { return 1; }
+	unset DKIM_BACKEND
+	setup_dkim_backend
+	unset -f command
+	[ "$DKIM_BACKEND" = "opendkim" ]
+}
+
+@test "explicit DKIM_BACKEND=rspamd falls back to opendkim when rspamd is unavailable" {
+	command() { return 1; }
+	DKIM_BACKEND=rspamd
+	setup_dkim_backend
+	unset -f command
+	[ "$DKIM_BACKEND" = "opendkim" ]
+}
+
 @test "rspamd backend wires postfix milter to 11332" {
 	export DKIM_BACKEND=rspamd
 	local ALLOWED_SENDER_DOMAINS=example.org

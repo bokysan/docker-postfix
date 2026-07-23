@@ -565,6 +565,11 @@ docker run --rm --name postfix -e DKIM_BACKEND=opendkim -e "ALLOWED_SENDER_DOMAI
 
 > **Note:** OpenDKIM is deprecated and will be removed in a future major release. Please migrate to rspamd.
 
+**Architecture note:** rspamd is not built for every architecture (for example, it is missing on Debian
+`linux/s390x`). On such images rspamd is simply not installed, and the container **automatically falls back to the
+OpenDKIM backend** -- even if `DKIM_BACKEND=rspamd` is requested (a warning is logged). All other architectures
+(`amd64`, `arm64`, ...) ship rspamd as the default.
+
 If you run the image with a **read-only root filesystem** and use the rspamd backend, make sure `/etc/rspamd` and
 `/var/lib/rspamd` are writable (mount them as `tmpfs` / `emptyDir`). rspamd stores its DKIM keys under
 `/var/lib/rspamd/dkim`.

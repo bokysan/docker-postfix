@@ -23,7 +23,13 @@ do_alpine() {
 	apk add postfix postfix-pcre postfix-ldap ${architecture_specific_packages}
 	# Install opendkim before rspamd so the system accounts keep a stable ordering across distros.
 	apk add opendkim
-	apk add rspamd
+	# rspamd is not built for every architecture. Install it only where available;
+	# otherwise the image still works with the opendkim backend.
+	if apk add --simulate rspamd >/dev/null 2>&1; then
+		apk add rspamd
+	else
+		echo "rspamd is not available for this architecture -- skipping (opendkim will be the only DKIM backend)."
+	fi
 	apk add --upgrade \
 		bash \
 		bind-tools \
@@ -66,7 +72,14 @@ do_ubuntu() {
 	apt-get install -y postfix postfix-pcre postfix-ldap ${architecture_specific_packages}
 	# Install opendkim before rspamd so the system accounts keep a stable ordering across distros.
 	apt-get install -y opendkim
-	apt-get install -y rspamd
+	# rspamd is not built for every architecture (e.g. it is missing on Debian
+	# linux/s390x). Install it only where available; otherwise the image still
+	# works with the opendkim backend.
+	if apt-get install -y -s rspamd >/dev/null 2>&1; then
+		apt-get install -y rspamd
+	else
+		echo "rspamd is not available for this architecture -- skipping (opendkim will be the only DKIM backend)."
+	fi
 	local libcurl="libcurl4"
 	if [ "$(apt-cache search --names-only '^libcurl4t64$')" != "" ]; then
 		libcurl="libcurl4t64"

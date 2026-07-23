@@ -37,13 +37,25 @@ rspamd_user() {
 }
 
 # Normalize and validate the DKIM_BACKEND variable. Defaults to "rspamd".
-# Exports DKIM_BACKEND so it is inherited by the supervisor-managed
+# rspamd is not available on every architecture (e.g. it is missing on Debian
+# linux/s390x); when it is not installed, fall back to opendkim so the image
+# still works. Exports DKIM_BACKEND so it is inherited by the supervisor-managed
 # opendkim.sh / rspamd.sh scripts.
 setup_dkim_backend() {
+	local requested="${DKIM_BACKEND}"
 	DKIM_BACKEND="$(echo "${DKIM_BACKEND:-rspamd}" | tr '[:upper:]' '[:lower:]')"
 	case "${DKIM_BACKEND}" in
 		rspamd)
-			notice "Using ${emphasis}rspamd${reset} as the DKIM backend."
+			if ! command -v rspamd >/dev/null 2>&1; then
+				if [[ -n "${requested}" ]]; then
+					warn "${emphasis}DKIM_BACKEND=rspamd${reset} was requested, but ${emphasis}rspamd${reset} is not available on this architecture. Falling back to ${emphasis}opendkim${reset}."
+				else
+					notice "${emphasis}rspamd${reset} is not available on this architecture. Using ${emphasis}opendkim${reset} as the DKIM backend."
+				fi
+				DKIM_BACKEND="opendkim"
+			else
+				notice "Using ${emphasis}rspamd${reset} as the DKIM backend."
+			fi
 			;;
 		opendkim)
 			notice "Using ${emphasis}opendkim${reset} as the DKIM backend. ${emphasis}OpenDKIM is deprecated${reset} and will be removed in a future release -- please migrate to ${emphasis}rspamd${reset} (the default)."
