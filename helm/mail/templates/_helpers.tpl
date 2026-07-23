@@ -66,14 +66,40 @@ Create the name of the service account to use
 Define checksum annotations
 */}}
 {{- define "mail.checksums" -}}
-# Reload for Statefulset when configmap changes on deployment
+# Reload the Statefulset when any mounted config/secret changes on deployment.
+# Templates whose guard condition is false render empty, so their checksum is
+# stable and only changes once the resource actually starts being emitted.
+# NOTE: secret-cert.yaml is intentionally excluded: it uses genSignedCert, which
+# regenerates on every render and would force a pod restart on every upgrade.
 checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+checksum/configmap-metrics: {{ include (print $.Template.BasePath "/configmap-metrics.yaml") . | sha256sum }}
+checksum/secret-mount: {{ include (print $.Template.BasePath "/secret-mount.yaml") . | sha256sum }}
 {{- end -}}
 
 {{- define "mail.reloader" -}}
-# Auto-reload postfix if somebody changes config map directly in Kuberentes.
-# Uses: https://github.com/stakater/Reloader
-configmap.reloader.stakater.com/reload: "{{ include "mail.fullname" . }}"
+{{- $fullName := include "mail.fullname" . -}}
+{{- $configmaps := list $fullName -}}
+{{- if .Values.metrics.enabled -}}
+{{- $configmaps = append $configmaps (printf "%s-metrics" $fullName) -}}
+{{- $configmaps = append $configmaps (printf "%s-scripts" $fullName) -}}
+{{- end -}}
+{{- $secrets := list -}}
+{{- if .Values.secret -}}
+{{- $secrets = append $secrets $fullName -}}
+{{- end -}}
+{{- if .Values.mountSecret.enabled -}}
+{{- $secrets = append $secrets (printf "%s-mount" $fullName) -}}
+{{- end }}
+# Auto-reload postfix if somebody changes a mounted config map or secret directly
+# in Kubernetes. Uses: https://github.com/stakater/Reloader
+# NOTE: only resources actually rendered are listed, and the cert secret is
+# intentionally excluded (see the note in "mail.checksums" above): it uses
+# genSignedCert and would force a reload on every upgrade.
+configmap.reloader.stakater.com/reload: {{ join "," $configmaps | quote }}
+{{- if $secrets }}
+secret.reloader.stakater.com/reload: {{ join "," $secrets | quote }}
+{{- end }}
 {{- end -}}
 
 {{/*
