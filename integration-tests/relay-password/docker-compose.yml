@@ -43,7 +43,7 @@ services:
       - "../tester:/code"
     build:
       context: ../tester
-    command: "/" # relative path to /code
+    command: "/code" # run the bats tests mounted at /code
     environment:
       FROM: "demo@mydomain.example.com"
       TO: "root@target.example.com"

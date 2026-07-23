@@ -20,6 +20,7 @@ ARG TARGETPLATFORM
 # Install supervisor, postfix
 # Install postfix first to get the first account (101)
 # Install opendkim second to get the second account (102)
+# Install rspamd last so its account ordering stays stable across distros
 RUN        --mount=type=cache,target=/var/cache/apt,sharing=locked,id=var-cache-apt-$TARGETPLATFORM \
            --mount=type=cache,target=/var/lib/apt,sharing=locked,id=var-lib-apt-$TARGETPLATFORM \
            --mount=type=tmpfs,target=/var/cache/apk \
@@ -79,6 +80,7 @@ VOLUME     [ \
     "/var/lib/postfix", \
     "/etc/postfix", \
     "/etc/rspamd/", \
+    "/var/lib/rspamd/", \
     "/etc/opendkim/keys" \
 ]
 

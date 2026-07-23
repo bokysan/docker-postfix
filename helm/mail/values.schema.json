@@ -539,6 +539,11 @@
           "description": "OpenDKIM options, set as OPENDKIM_<key> environment variables",
           "type": "object",
           "additionalProperties": true
+        },
+        "rspamd": {
+          "description": "rspamd options, set as RSPAMD_<file>__<key> environment variables (written into /etc/rspamd/local.d/<file>.conf)",
+          "type": "object",
+          "additionalProperties": true
         }
       }
     },

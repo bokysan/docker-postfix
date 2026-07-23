@@ -8,6 +8,10 @@ extraVolumes:
       emptyDir: {}
     - name: opendkim-data
       emptyDir: {}
+    - name: rspamd-config
+      emptyDir: {}
+    - name: rspamd-data
+      emptyDir: {}
     - name: var-run
       emptyDir: {}
     - name: var-lib-postfix
@@ -18,6 +22,10 @@ extraVolumeMounts:
       mountPath: /etc/postfix
     - name: opendkim-data
       mountPath: /etc/opendkim
+    - name: rspamd-config
+      mountPath: /etc/rspamd
+    - name: rspamd-data
+      mountPath: /var/lib/rspamd
     - name: var-run
       mountPath: /var/run
     - name: var-lib-postfix

@@ -16,6 +16,9 @@ data:
   {{- range $key, $value := .Values.config.opendkim }}
   OPENDKIM_{{ $key }}: {{ $value | quote }}
   {{- end }}
+  {{- range $key, $value := .Values.config.rspamd }}
+  RSPAMD_{{ $key }}: {{ $value | quote }}
+  {{- end }}
   {{- if or .Values.certs.create .Values.certs.existingSecret }}
   _enable_tls.sh: |
     #!/usr/bin/env bash

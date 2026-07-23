@@ -16,6 +16,7 @@ Feel free to pick your favourite distro.
   - [Description](#description)
   - [TL;DR](#tldr)
   - [Updates](#updates)
+    - [v6.0.0](#v600)
     - [v5.0.0](#v500)
     - [v4.0.0](#v400)
     - [v3.0.0](#v300)
@@ -47,9 +48,12 @@ Feel free to pick your favourite distro.
         - [The `noop` filter](#the-noop-filter)
         - [Writing your own filters](#writing-your-own-filters)
     - [DKIM / DomainKeys](#dkim--domainkeys)
+      - [Choosing the DKIM backend (`DKIM_BACKEND`)](#choosing-the-dkim-backend-dkim_backend)
+      - [Migrating from OpenDKIM to rspamd](#migrating-from-opendkim-to-rspamd)
       - [Supplying your own DKIM keys](#supplying-your-own-dkim-keys)
       - [Auto-generating the DKIM selectors through the image](#auto-generating-the-dkim-selectors-through-the-image)
       - [Changing the DKIM selector](#changing-the-dkim-selector)
+      - [Overriding specific rspamd settings](#overriding-specific-rspamd-settings)
       - [Overriding specific OpenDKIM settings](#overriding-specific-opendkim-settings)
       - [Verifying your DKIM setup](#verifying-your-dkim-setup)
     - [Docker Secrets / Kubernetes secrets](#docker-secrets--kubernetes-secrets)
@@ -126,6 +130,45 @@ to host a SMTP server on a dynamic IP address.
 by ISPs, already occupied by other services, and in general should only be used for server-to-server communication.
 
 ## Updates
+
+### v6.0.0
+
+#### DKIM signing
+
+**The default DKIM backend has changed from [OpenDKIM](http://opendkim.org/) to [rspamd](https://rspamd.com/).**
+
+For most users this transition is automatic and requires no action:
+
+- On first startup with the new default, any DKIM keys found under `/etc/opendkim/keys`
+  are **automatically imported** into rspamd (see [DKIM / DomainKeys](#dkim--domainkeys)).
+  Your existing keys are _copied_ (not moved), so nothing is lost and you can switch back.
+- rspamd signs using `relaxed/relaxed` canonicalization. Your published DNS records
+  remain valid -- there is no need to regenerate keys or update DNS.
+- Postfix is now wired to rspamd's milter (`inet:localhost:11332`) instead of OpenDKIM's
+  (`inet:localhost:8891`).
+
+If you are not ready to migrate, set `DKIM_BACKEND=opendkim` to keep using OpenDKIM.
+**OpenDKIM is deprecated** and will be removed in a future major release, so please plan
+your migration.
+
+If you run the image with a **read-only root filesystem**, note that rspamd needs two
+writable paths: `/etc/rspamd` and `/var/lib/rspamd`. Mount them (e.g. as `emptyDir` /
+`tmpfs`) -- see the [read-only image](#helm-chart) examples.
+
+Custom rspamd settings are configured with `RSPAMD_<file>__<key>` environment variables
+(see [Overriding specific rspamd settings](#overriding-specific-rspamd-settings)).
+
+#### Helm chart validation
+
+helm chart now includes validation through `values.schema.json`.
+
+#### Version alignment
+
+`v` versions of helm charts have been dropped. SemVer-s are now more aligned with the standard.
+
+#### Bugfixes
+
+Better support for read-only root images, `postfix-exporter` has been migrated to [Hsn723's version](https://github.com/Hsn723/postfix_exporter) which is more current and being kept up to date.
 
 ### v5.0.0
 
@@ -495,11 +538,53 @@ also install your own Python package -- the script will automatically pick up th
 **This image is equipped with support for DKIM.** If you want to use DKIM you will need to generate DKIM keys. These can
 be either generated automatically, or you can supply them yourself.
 
+The DKIM signing is performed by one of two backends -- [rspamd](https://rspamd.com/) (the default since `v6.0.0`) or
+[OpenDKIM](http://opendkim.org/) (deprecated). Both share the same keys and the same options below, so switching between
+them requires no changes to your keys or DNS records.
+
 The DKIM supports the following options:
 
+- `DKIM_BACKEND` = Which DKIM backend to use: `rspamd` (default) or `opendkim`.
 - `DKIM_SELECTOR` = Override the default DKIM selector (by default "mail").
 - `DKIM_AUTOGENERATE` = Set to non-empty value (e.g. `true` or `1`) to have the server auto-generate domain keys.
-- `OPENDKIM_<any_dkim_setting>` = Provide any additional OpenDKIM setting.
+- `RSPAMD_<file>__<key>` = Provide any additional rspamd setting (see [below](#overriding-specific-rspamd-settings)).
+- `OPENDKIM_<any_dkim_setting>` = Provide any additional OpenDKIM setting (only used with the `opendkim` backend).
+
+#### Choosing the DKIM backend (`DKIM_BACKEND`)
+
+Since `v6.0.0` the default backend is **rspamd**. rspamd runs as a milter (`inet:localhost:11332`) and, in this image,
+is configured purely for **outbound DKIM signing** -- it never rejects or greylists your outgoing mail (see
+`/etc/rspamd/local.d/actions.conf`). Additional outbound checks such as rate limiting are shipped but disabled; enabling
+them requires an external Redis instance.
+
+To keep using the (deprecated) OpenDKIM backend, set `DKIM_BACKEND=opendkim`:
+
+```shell script
+docker run --rm --name postfix -e DKIM_BACKEND=opendkim -e "ALLOWED_SENDER_DOMAINS=example.org" -v /host/keys:/etc/opendkim/keys -p 1587:587 boky/postfix
+```
+
+> **Note:** OpenDKIM is deprecated and will be removed in a future major release. Please migrate to rspamd.
+
+If you run the image with a **read-only root filesystem** and use the rspamd backend, make sure `/etc/rspamd` and
+`/var/lib/rspamd` are writable (mount them as `tmpfs` / `emptyDir`). rspamd stores its DKIM keys under
+`/var/lib/rspamd/dkim`.
+
+#### Migrating from OpenDKIM to rspamd
+
+Migration is automatic. On the first startup with the rspamd backend:
+
+1. If `/var/lib/rspamd/dkim` has no keys yet **and** `/etc/opendkim/keys` contains keys, each key is **copied** into
+   `/var/lib/rspamd/dkim/<domain>.<selector>.key` (the selector is resolved with the same `DKIM_SELECTOR` logic).
+   The originals in `/etc/opendkim/keys` are left untouched, so you can switch back to `DKIM_BACKEND=opendkim` at any time.
+2. rspamd signs using `relaxed/relaxed` canonicalization. Your published DNS TXT records **remain valid** -- you do not
+   need to regenerate keys or update DNS.
+3. A handful of mappable `OPENDKIM_*` settings are translated on a best-effort basis (e.g. `OPENDKIM_SignHeaders` ->
+   rspamd `sign_headers`). Settings without a direct equivalent are logged with a warning so you can act on them.
+
+The import only runs when rspamd has no keys of its own yet, so it is safe across restarts. To force a fresh import,
+empty the `/var/lib/rspamd/dkim` directory.
+
+After switching, [verify your DKIM setup](#verifying-your-dkim-setup) to confirm signatures are produced as expected.
 
 #### Supplying your own DKIM keys
 
@@ -556,7 +641,27 @@ This means:
 - use `blah` for `example.com` domain
 - use `foo` if no domain matches
 
+#### Overriding specific rspamd settings
+
+When using the rspamd backend, any setting can be overridden with `RSPAMD_<file>__<key>` environment variables. These are
+written into `/etc/rspamd/local.d/<file>.conf` as `<key> = <value>;` -- following rspamd's
+[local.d override mechanism](https://rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories). The part
+before the double underscore (`__`) is the file name; the part after is the key. For example:
+
+```shell script
+# writes `use_esld = false;` into /etc/rspamd/local.d/dkim_signing.conf
+RSPAMD_dkim_signing__use_esld=false
+```
+
+Specifying no content (empty variable) removes that key from the file.
+
+For nested UCL structures, or for `.inc` files whose names contain a hyphen (e.g. `worker-proxy.inc`), the environment
+variable syntax is not sufficient -- mount your own file into `/etc/rspamd/local.d/` (or `/etc/rspamd/override.d/`)
+instead. `/etc/rspamd` is a volume, so your mounts and generated files survive restarts.
+
 #### Overriding specific OpenDKIM settings
+
+> These settings only apply when `DKIM_BACKEND=opendkim`.
 
 Any OpenDKIM [configuration option](http://opendkim.org/opendkim.conf.5.html) can be overriden using `OPENDKIM_<name>`
 environment variables, e.g. `OPENDKIM_RequireSafeKeys=yes`. Specifying no content (empty variable) will remove that
@@ -661,7 +766,8 @@ Chart configuration is as follows:
 | `container.postfix.securityContext` | `{}` | Containers's [security context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) |
 | `config.general` | `{}` | Key-value list of general configuration options, e.g. `TZ: "Europe/London"` |
 | `config.postfix` | `{}` | Key-value list of general postfix options, e.g. `myhostname: "demo"` |
-| `config.opendkim` | `{}` | Key-value list of general OpenDKIM options, e.g. `RequireSafeKeys: "yes"` |
+| `config.opendkim` | `{}` | Key-value list of general OpenDKIM options, e.g. `RequireSafeKeys: "yes"` (when `config.general.DKIM_BACKEND` is `opendkim`) |
+| `config.rspamd` | `{}` | Key-value list of rspamd options using the `<file>__<key>` convention, e.g. `dkim_signing__use_esld: "false"` (when `config.general.DKIM_BACKEND` is empty of `rspamd`) |
 | `secret` | `{}` | Key-value list of environment variables to be shared with Postfix / OpenDKIM as secrets |
 | `existingSecret` | `""` | A reference to an existing opaque secret. Secret is mounted and exposed as environment variables in the pod |
 | `mountSecret.enabled` | `false` | Create a folder with contents of the secret in the pod's container |

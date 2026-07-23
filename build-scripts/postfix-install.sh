@@ -21,7 +21,9 @@ do_alpine() {
 
 	apk add --upgrade cyrus-sasl cyrus-sasl-static cyrus-sasl-digestmd5 cyrus-sasl-crammd5 cyrus-sasl-login cyrus-sasl-ntlm libsasl
 	apk add postfix postfix-pcre postfix-ldap ${architecture_specific_packages}
+	# Install opendkim before rspamd so the system accounts keep a stable ordering across distros.
 	apk add opendkim
+	apk add rspamd
 	apk add --upgrade \
 		bash \
 		bind-tools \
@@ -62,7 +64,9 @@ do_ubuntu() {
 
 	apt-get install -y libsasl2-modules sasl2-bin
 	apt-get install -y postfix postfix-pcre postfix-ldap ${architecture_specific_packages}
+	# Install opendkim before rspamd so the system accounts keep a stable ordering across distros.
 	apt-get install -y opendkim
+	apt-get install -y rspamd
 	local libcurl="libcurl4"
 	if [ "$(apt-cache search --names-only '^libcurl4t64$')" != "" ]; then
 		libcurl="libcurl4t64"

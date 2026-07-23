@@ -11,6 +11,7 @@ services:
       retries: 2
     environment:
       FORCE_COLOR: "1"
+      DKIM_BACKEND: "opendkim"
       ALLOWED_SENDER_DOMAINS: "example.org"
       DKIM_AUTOGENERATE: "true"
       OPENDKIM_Canonicalization: "relaxed/relaxed"
@@ -22,7 +23,7 @@ services:
       - "../tester:/code"
     build:
       context: ../tester
-    command: "/" # relative path to /code
+    command: "/code" # run the bats tests mounted at /code
     environment:
       FROM: "demo@example.org"
       TO: "test@gmail.com"

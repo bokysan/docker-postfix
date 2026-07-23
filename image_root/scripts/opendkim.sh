@@ -8,7 +8,11 @@ noop() {
 	done
 }
 
-if [ ! -d /etc/opendkim/keys ]; then
+if [ "${DKIM_BACKEND}" = "rspamd" ]; then
+	# rspamd backend selected -- OpenDKIM stays out of the way.
+	touch /tmp/no_open_dkim
+	noop
+elif [ ! -d /etc/opendkim/keys ]; then
 	touch /tmp/no_open_dkim
 	noop
 elif [ -z "$(find /etc/opendkim/keys -type f ! -name .)" ]; then

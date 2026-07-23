@@ -9,13 +9,13 @@ services:
       timeout: 5s
       start_period: 10s
       retries: 2
+    volumes:
+      # Existing OpenDKIM keys -- these must be automatically imported into rspamd.
+      - "../basic-test/test-keys:/etc/opendkim/keys"
     environment:
       FORCE_COLOR: "1"
-      MASQUERADED_DOMAINS: "postfix"
-      ALLOWED_SENDER_DOMAINS: ""
-      ALLOW_EMPTY_SENDER_DOMAINS: "true"
-      POSTFIX_smtpd_end_of_data_restrictions: "check_client_access static:discard"
-      LOG_FORMAT: "json"
+      DKIM_BACKEND: "rspamd"
+      ALLOWED_SENDER_DOMAINS: "example.org"
   tests:
     image: "boky/postfix-integration-test"
     restart: "no"
@@ -27,4 +27,3 @@ services:
     environment:
       FROM: "demo@example.org"
       TO: "test@gmail.com"
-      SKIP_INVALID_DOMAIN_SEND: "1"

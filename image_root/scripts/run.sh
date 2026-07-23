@@ -14,6 +14,7 @@ done
 . /scripts/functions.sh
 
 announce_startup                        # Print startup banner
+setup_dkim_backend                      # Select the DKIM backend (rspamd or opendkim)
 setup_timezone                          # Check if we need to configure the container timezone
 check_environment_sane                  # Check if the the environment is sane
 rsyslog_log_format                      # Setup rsyslog output format
@@ -42,10 +43,11 @@ postfix_setup_debugging                 # Enable debugging, if defined
 postfix_setup_sender_domains            # Configure allowed sender domains
 postfix_setup_masquarading              # Setup masqueraded domains
 postfix_setup_header_checks             # Enable SMTP header checks, if defined
-postfix_setup_dkim                      # Configure DKIM, if enabled
+postfix_setup_dkim                      # Configure DKIM (rspamd or opendkim), if enabled
 postfix_setup_smtpd_sasl_auth           # Enable sender SASL auth, if defined
 postfix_custom_commands                 # Apply custom postfix settings
 opendkim_custom_commands                # Apply custom OpenDKIM settings
+rspamd_custom_commands                  # Apply custom rspamd settings (RSPAMD_<file>__<key>)
 postfix_open_submission_port            # Enable the submission port
 execute_post_init_scripts               # Execute any scripts found in /docker-init.d/
 unset_sensitive_variables               # Remove environment variables that contains sensitive values (secrets) that are read from conf files

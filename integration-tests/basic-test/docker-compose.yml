@@ -17,8 +17,15 @@ services:
       - "/tmp/"
       - "/var/spool/postfix"
       - "/etc/postfix"
+      # OpenDKIM writes its runtime config here (opendkim.conf, KeyTable,
+      # SigningTable, TrustedHosts), so it must be writable on a read-only image.
+      - "/etc/opendkim"
+      # Postfix needs a writable data dir (master.lock etc.) and runtime dir.
+      - "/var/lib/postfix"
+      - "/var/run"
     environment:
       FORCE_COLOR: "1"
+      DKIM_BACKEND: "opendkim"
       OPENDKIM_Canonicalization: "relaxed/relaxed"
       ALLOWED_SENDER_DOMAINS: "example.org"
   tests:
@@ -28,7 +35,7 @@ services:
       - "../tester:/code"
     build:
       context: ../tester
-    command: "/" # relative path to /code
+    command: "/code" # run the bats tests mounted at /code
     environment:
       FROM: "demo@example.org"
       TO: "test@gmail.com"

@@ -11,11 +11,10 @@ services:
       retries: 2
     environment:
       FORCE_COLOR: "1"
-      MASQUERADED_DOMAINS: "postfix"
-      ALLOWED_SENDER_DOMAINS: ""
-      ALLOW_EMPTY_SENDER_DOMAINS: "true"
+      DKIM_BACKEND: "rspamd"
+      ALLOWED_SENDER_DOMAINS: "example.org"
+      DKIM_AUTOGENERATE: "true"
       POSTFIX_smtpd_end_of_data_restrictions: "check_client_access static:discard"
-      LOG_FORMAT: "json"
   tests:
     image: "boky/postfix-integration-test"
     restart: "no"
@@ -27,4 +26,3 @@ services:
     environment:
       FROM: "demo@example.org"
       TO: "test@gmail.com"
-      SKIP_INVALID_DOMAIN_SEND: "1"

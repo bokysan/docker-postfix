@@ -38,7 +38,7 @@ services:
       - "logs-volume:/logs"
     build:
       context: ../tester
-    command: "/"
+    command: "/code"
     environment:
       FROM: "${FROM}"
       TO: "${TO}"

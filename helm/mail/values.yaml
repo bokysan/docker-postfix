@@ -206,15 +206,24 @@ config:
     # SMTP_HEADER_CHECKS:
     # DKIM_SELECTOR:
     # DKIM_AUTOGENERATE:
+    # DKIM_BACKEND: # "rspamd" (default) or "opendkim"
   postfix:
     {}
     # e.g.
     # myhostname: "postfix"
     # smtp_tls_security_level: "encrypt"
+  # OpenDKIM settings (only used when config.general.DKIM_BACKEND is "opendkim").
   opendkim:
     {}
     # e.g.
     # RequireSafeKeys: "yes"
+  # rspamd settings (the default DKIM backend), written into
+  # /etc/rspamd/local.d/<file>.conf. Keys use the <file>__<key> convention, e.g.
+  # `dkim_signing__use_esld: "false"` -> RSPAMD_dkim_signing__use_esld=false.
+  rspamd:
+    {}
+    # e.g.
+    # dkim_signing__use_esld: "false"
 
 dns:
   policy: ""

@@ -203,12 +203,15 @@ config:
     RELAYHOST_PASSWORD: "relay-pass"
     MASQUERADED_DOMAINS: "example.com"
     DKIM_SELECTOR: "mail"
+    DKIM_BACKEND: "rspamd"
   postfix:
     myhostname: "postfix-kitchensink"
     smtp_tls_security_level: "may"
     message_size_limit: "52428800"
   opendkim:
     RequireSafeKeys: "yes"
+  rspamd:
+    dkim_signing__use_esld: "false"
 
 dns:
   policy: "None"

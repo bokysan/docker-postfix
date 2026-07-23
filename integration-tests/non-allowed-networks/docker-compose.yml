@@ -22,7 +22,7 @@ services:
       - ".:/code"
     build:
       context: ../tester
-    command: "/"
+    command: "/code"
     environment:
       FROM: "demo@example.org"
       TO: "test@gmail.com"
