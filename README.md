@@ -294,39 +294,20 @@ Define relay host TLS connection level. See [smtp_tls_security_level](http://www
 
 This level defines how the postfix will connect to your upstream server.
 
-#### `XOAUTH2_CLIENT_ID`, `XOAUTH2_SECRET`, `XOAUTH2_INITIAL_ACCESS_TOKEN`, `XOAUTH2_INITIAL_REFRESH_TOKEN` and `XOAUTH2_TOKEN_ENDPOINT`
+#### SASL configuration
 
 > Note: These parameters are used when `RELAYHOST` and `RELAYHOST_USERNAME` are provided.
 
 These parameters allow you to configure a relayhost that requires (or recommends) the [XOAuth2 authentication method](https://github.com/tarickb/sasl-xoauth2) (e.g. GMail).
 
-- `XOAUTH2_CLIENT_ID` and  `XOAUTH2_SECRET` are the [OAuth2 client credentials](#oauth2-client-credentials-gmail).
-- `XOAUTH2_INITIAL_ACCESS_TOKEN` and `XOAUTH2_INITIAL_REFRESH_TOKEN` are the [initial access token and refresh tokens](#obtain-initial-access-token-gmail).
-- `XOAUTH2_TOKEN_ENDPOINT` is mandatory for Microsoft 365 use, sasl-xoauth2 will use Gmail URL if it is not provided.
-   These values are only  required to initialize the token file `/var/spool/postfix/xoauth2-tokens/$RELAYHOST_USERNAME`.
-
-Example:
-
-```shell script
-docker run --rm --name pruebas-postfix \
-    -e RELAYHOST="[smtp.gmail.com]:587" \
-    -e RELAYHOST_USERNAME="<put.your.account>@gmail.com" \
-    -e POSTFIX_smtp_tls_security_level="encrypt" \
-    -e XOAUTH2_CLIENT_ID="<put_your_oauth2_client_id>" \
-    -e XOAUTH2_SECRET="<put_your_oauth2_secret>" \
-    -e ALLOW_EMPTY_SENDER_DOMAINS="true" \
-    -e XOAUTH2_INITIAL_ACCESS_TOKEN="<put_your_acess_token>" \
-    -e XOAUTH2_INITIAL_REFRESH_TOKEN="<put_your_refresh_token>" \
-    boky/postfix
-```
-
-Next sections describe how to obtain these values.
+Please check the documentation of [SASL-XOAuth2](https://github.com/tarickb/sasl-xoauth2) for how this is expected to be configured. You will need to get at least OAuth2
+credentials. Next sections describe how to obtain these values.
 
 ##### OAuth2 Client Credentials (GMail)
 
 Visit the [Google API Console](https://console.developers.google.com/) to obtain OAuth 2 credentials (a client ID and client secret) for an "Installed application" application type.
 
-Save the client ID and secret and use them to initialize `XOAUTH2_CLIENT_ID` and  `XOAUTH2_SECRET` respectively.
+Save the client ID and secret and use them to according to SASL-XOauth2 documentation.
 
 We'll also need these credentials in the next step.
 
@@ -334,12 +315,7 @@ We'll also need these credentials in the next step.
 
 Use the [Gmail OAuth2 developer tools](https://github.com/google/gmail-oauth2-tools/) to obtain an OAuth token by following the [Creating and Authorizing an OAuth Token](https://github.com/google/gmail-oauth2-tools/wiki/OAuth2DotPyRunThrough#creating-and-authorizing-an-oauth-token) instructions.
 
-Save the resulting tokens and use them to initialize `XOAUTH2_INITIAL_ACCESS_TOKEN` and `XOAUTH2_INITIAL_REFRESH_TOKEN`.
-
-##### Debug XOAuth2 issues
-
-If you have XOAuth2 authentication issues you can enable XOAuth2 debug message setting `XOAUTH2_SYSLOG_ON_FAILURE` to `"yes"` (default: `"no"`). If you need a more detailed
-log trace about XOAuth2 you can set `XOAUTH2_FULL_TRACE` to `"yes"` (default: `"no"`).
+Save the resulting tokens and use them to initialize SASL.
 
 #### `MASQUERADED_DOMAINS`
 
