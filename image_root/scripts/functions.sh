@@ -307,8 +307,6 @@ postfix_upgrade_conf() {
 			fi
 		done
 		IFS="$OLD_IFS"
-	else
-		debug "No upgrade of hashes needed needed."
 	fi
 }
 
@@ -356,8 +354,40 @@ postfix_disable_utf8() {
 }
 
 postfix_create_aliases() {
-	touch /etc/postfix/aliases
-	postalias /etc/postfix/aliases
+	# This will fail if the image is booted as a ready-only image.
+	local aliases=/etc/aliases
+	local param current path
+
+	if touch /etc/postfix/aliases; then
+		if postalias /etc/postfix/aliases; then
+			aliases=/etc/postfix/aliases
+		else
+			warn "Cannot create file ${emphasis}/etc/postfix/aliases${reset}. Running from a read only image?"
+		fi
+	else
+		warn "Cannot touch / create file ${emphasis}/etc/postfix/aliases${reset}. Running from a read only image?"
+	fi
+
+	# Fix up alias_maps / alias_database so postfix never tries to open a database
+	# that does not exist (e.g. the built-in default lmdb:/etc/aliases -> the missing
+	# /etc/aliases.lmdb).
+	for param in alias_maps alias_database; do
+		current="$(get_postconf "${param}")"
+		path="${current#*:}"   # strip the leading map type, e.g. "lmdb:"
+
+		if [[ -n "${current}" ]] && { [[ "${current}" == *,* ]] || [[ -f "${path}" ]] || [[ -f "${path}.lmdb" ]] || [[ -f "${path}.db" ]]; }; then
+			# A multi-map value, or a value pointing at a database that exists on disk:
+			# assume it is intentional (user override / mounted main.cf) and keep it.
+			notice "Keeping ${emphasis}${param}=${current}${reset}."
+		elif [[ -f "${aliases}.lmdb" ]]; then
+			do_postconf -e "${param}=lmdb:${aliases}.lmdb"
+		else
+			# Nothing valid to point at -- clear the value so postfix does not fail
+			# trying to open a non-existent database.
+			warn "Clearing ${emphasis}${param}${reset} -- alias database ${emphasis}${path:-<none>}${reset} not found."
+			do_postconf -e "${param}="
+		fi
+	done
 }
 
 postfix_disable_local_mail_delivery() {
