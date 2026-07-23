@@ -415,9 +415,9 @@ Enable the filter by setting `ANONYMIZE_EMAILS=smart`.
 
 The is enabled by setting the value to `on`, `true`, `1`, `default` or `smart`. The filter will take an educated guess at how to best mask the emails, specifically:
 
-- It will leave the first and the last letter of the local part (if the local part is one letter long it gets repeated atht beggining and the end)
+- It will leave the first and the last letter of the local part (if the local part is one letter long it gets repeated at the beginning and the end)
 - If the local part is in quotes, it will remove the quotes (Warning: if the email starts with a space, this might look weird in logs)
-- It will replace all the letters inbetween with **ONE** asterisk, even if there are none
+- It will replace all the letters in between with **ONE** asterisk, even if there are none
 - It will replace everything but a TLD with a star
 - Address-style domains will see the number replaced with stars
 
