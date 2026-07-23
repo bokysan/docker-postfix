@@ -39,7 +39,7 @@ runs:
       shell: bash
       run: |
         cd postfix_exporter
-        git apply ../postfix-exporter-*.patch
+        git apply ../build-scripts/postfix-exporter-*.patch
 
     # Docker hub login
     - uses: ./.github/actions/docker-hub-login

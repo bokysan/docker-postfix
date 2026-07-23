@@ -1,6 +1,6 @@
 --- a/Dockerfile	2026-07-22 15:19:53
 +++ b/Dockerfile	2026-07-22 15:21:19
-@@ -1,9 +1,27 @@
+@@ -1,9 +1,29 @@
 +# syntax=docker/dockerfile:1.2
 +# Step 1: Build the binary using Docker's native multi-platform Go support
 +FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
@@ -26,6 +26,8 @@
          org.opencontainers.image.title="postfix_exporter"
  EXPOSE 9154
 -COPY $TARGETPLATFORM/postfix_exporter /
++# Legacy path for old helm charts so people do not run into issues
++COPY --from=builder /app/postfix_exporter /bin/postfix_exporter
 +COPY --from=builder /app/postfix_exporter /postfix_exporter
  COPY LICENSE /
  ENTRYPOINT ["/postfix_exporter"]
