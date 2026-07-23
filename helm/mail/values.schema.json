@@ -1,0 +1,655 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "docker-postfix Helm chart values",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "stringMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "labelsAnnotations": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "resources": {
+      "description": "Kubernetes resource requests and limits",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "limits": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "requests": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "probe": {
+      "description": "Kubernetes probe definition",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "initialDelaySeconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "successThreshold": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "exec": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "securityContext": {
+      "description": "Kubernetes security context",
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "properties": {
+    "global": {
+      "description": "Global values shared across subcharts",
+      "type": "object",
+      "additionalProperties": true
+    },
+    "replicaCount": {
+      "description": "Number of replicas. Ignored when autoscaling is enabled.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "tag": {
+          "description": "If not specified, the chart's appVersion is used as the tag",
+          "type": "string"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": [
+            "Always",
+            "IfNotPresent",
+            "Never"
+          ]
+        }
+      }
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "nameOverride": {
+      "type": "string"
+    },
+    "fullnameOverride": {
+      "type": "string"
+    },
+    "serviceAccount": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "create": {
+          "description": "Specifies whether a service account should be created",
+          "type": "boolean"
+        },
+        "labels": {
+          "$ref": "#/definitions/labelsAnnotations"
+        },
+        "annotations": {
+          "$ref": "#/definitions/labelsAnnotations"
+        },
+        "name": {
+          "description": "The name of the service account to use. If not set and create is true, a name is generated using the fullname template.",
+          "type": "string"
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ClusterIP",
+            "NodePort",
+            "LoadBalancer",
+            "ExternalName"
+          ]
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "nodePort": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "appprotocol": {
+          "description": "appProtocol for the service port (Kubernetes >= 1.20)",
+          "type": "string"
+        },
+        "externalTrafficPolicy": {
+          "description": "externalTrafficPolicy for LoadBalancer / NodePort services",
+          "type": "string",
+          "enum": [
+            "",
+            "Cluster",
+            "Local"
+          ]
+        },
+        "externalIPs": {
+          "description": "Route traffic arriving at these (node) IPs to the service",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "spec": {
+          "description": "Additional fields merged into the Service spec",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "labels": {
+          "$ref": "#/definitions/labelsAnnotations"
+        },
+        "annotations": {
+          "$ref": "#/definitions/labelsAnnotations"
+        }
+      }
+    },
+    "externalTrafficPolicy": {
+      "description": "Deprecated: use service.externalTrafficPolicy instead",
+      "type": "string",
+      "enum": [
+        "",
+        "Cluster",
+        "Local"
+      ]
+    },
+    "headlessService": {
+      "description": "StatefulSets require a headless service",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "labels": {
+          "$ref": "#/definitions/labelsAnnotations"
+        },
+        "annotations": {
+          "$ref": "#/definitions/labelsAnnotations"
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "service": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "labels": {
+              "$ref": "#/definitions/labelsAnnotations"
+            },
+            "annotations": {
+              "$ref": "#/definitions/labelsAnnotations"
+            }
+          }
+        },
+        "serviceMonitor": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "labels": {
+              "$ref": "#/definitions/labelsAnnotations"
+            },
+            "annotations": {
+              "$ref": "#/definitions/labelsAnnotations"
+            }
+          }
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "path": {
+          "type": "string"
+        },
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "type": "string"
+            },
+            "tag": {
+              "description": "If not specified, the chart's appVersion is used as the tag",
+              "type": "string"
+            }
+          }
+        },
+        "maillog": {
+          "description": "Log file used by the metrics exporter. Do not override POSTFIX_maillog_file when metrics are enabled.",
+          "type": "string"
+        },
+        "logrotate": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "logrotate.conf": {
+              "description": "Contents of the logrotate configuration file",
+              "type": "string"
+            }
+          }
+        },
+        "resources": {
+          "$ref": "#/definitions/resources"
+        }
+      }
+    },
+    "recreateOnRedeploy": {
+      "description": "Inject a date/deploy-date annotation into the pod spec so pods are recreated on every deploy",
+      "type": "boolean"
+    },
+    "resources": {
+      "$ref": "#/definitions/resources"
+    },
+    "autoscaling": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "minReplicas": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxReplicas": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "targetCPUUtilizationPercentage": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "targetMemoryUtilizationPercentage": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "labels": {
+          "$ref": "#/definitions/labelsAnnotations"
+        },
+        "annotations": {
+          "$ref": "#/definitions/labelsAnnotations"
+        },
+        "behavior": {
+          "description": "HorizontalPodAutoscaler behavior configuration",
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "nodeSelector": {
+      "$ref": "#/definitions/stringMap"
+    },
+    "tolerations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "affinity": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "extraVolumes": {
+      "description": "Extra volumes: either a YAML array or a template string (rendered with tpl)",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      ]
+    },
+    "extraVolumeMounts": {
+      "description": "Extra volume mounts: either a YAML array or a template string (rendered with tpl)",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      ]
+    },
+    "extraInitContainers": {
+      "description": "Extra init containers: either a YAML array or a template string (rendered with tpl)",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      ]
+    },
+    "extraEnv": {
+      "description": "Extra environment variables: either a YAML array or a template string (rendered with tpl)",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      ]
+    },
+    "extraContainers": {
+      "description": "Extra containers: either a YAML array or a template string (rendered with tpl)",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      ]
+    },
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "labels": {
+          "$ref": "#/definitions/labelsAnnotations"
+        },
+        "annotations": {
+          "$ref": "#/definitions/labelsAnnotations"
+        }
+      }
+    },
+    "strategy": {
+      "description": "Update strategy (only used when rendering as a Deployment)",
+      "type": "object",
+      "additionalProperties": true
+    },
+    "pod": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "securityContext": {
+          "$ref": "#/definitions/securityContext"
+        },
+        "labels": {
+          "$ref": "#/definitions/labelsAnnotations"
+        },
+        "annotations": {
+          "$ref": "#/definitions/labelsAnnotations"
+        }
+      }
+    },
+    "container": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "postfix": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "securityContext": {
+              "$ref": "#/definitions/securityContext"
+            }
+          }
+        }
+      }
+    },
+    "certs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "create": {
+          "description": "Auto-generate certificates for the server and mount them into the Postfix volume",
+          "type": "boolean"
+        },
+        "existingSecret": {
+          "description": "Name of an existing secret with the certificates",
+          "type": "string"
+        }
+      }
+    },
+    "secret": {
+      "description": "Data stored in a Secret and shared with the pod as environment variables",
+      "$ref": "#/definitions/stringMap"
+    },
+    "existingSecret": {
+      "description": "Use an existing secret to share with the pod as environment variables",
+      "type": "string"
+    },
+    "mountSecret": {
+      "description": "A secret deployed with the chart and mounted into a specific directory in the pod",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/stringMap"
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "general": {
+          "description": "General environment variables for the container (e.g. RELAYHOST, ALLOWED_SENDER_DOMAINS)",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "postfix": {
+          "description": "Postfix main.cf options, set as POSTFIX_<key> environment variables",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "opendkim": {
+          "description": "OpenDKIM options, set as OPENDKIM_<key> environment variables",
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "dns": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "policy": {
+          "type": "string",
+          "enum": [
+            "",
+            "Default",
+            "ClusterFirst",
+            "ClusterFirstWithHostNet",
+            "None"
+          ]
+        },
+        "nameservers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "searches": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "persistence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "accessModes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "ReadWriteOnce",
+              "ReadOnlyMany",
+              "ReadWriteMany",
+              "ReadWriteOncePod"
+            ]
+          }
+        },
+        "existingClaim": {
+          "type": "string"
+        },
+        "size": {
+          "type": "string"
+        },
+        "storageClass": {
+          "type": "string"
+        }
+      }
+    },
+    "readinessProbe": {
+      "$ref": "#/definitions/probe"
+    },
+    "livenessProbe": {
+      "$ref": "#/definitions/probe"
+    },
+    "startupProbe": {
+      "$ref": "#/definitions/probe"
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "postStart": {
+          "description": "Kubernetes postStart lifecycle handler",
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "preStopSleepSeconds": {
+      "description": "Seconds to sleep in the preStop hook before shutting down",
+      "type": "integer",
+      "minimum": 0
+    },
+    "terminationGracePeriodSeconds": {
+      "description": "Grace period to let Postfix flush the queue before the container is killed",
+      "type": "integer",
+      "minimum": 0
+    },
+    "priorityClassName": {
+      "type": "string"
+    },
+    "schedulerName": {
+      "type": "string"
+    }
+  }
+}

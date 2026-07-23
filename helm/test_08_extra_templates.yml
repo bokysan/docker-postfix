@@ -1,0 +1,24 @@
+extraContainers: |
+  - name: {{ include (print "mail.fullname") . -}}-test
+    image: "ubuntu"
+    imagePullPolicy: "Always"
+
+# Exercise the template-string (tpl) form of the extra* values
+extraInitContainers: |
+  - name: {{ include (print "mail.fullname") . -}}-init
+    image: "busybox"
+    command: ["sh", "-c", "true"]
+
+extraEnv: |
+  - name: RELEASE_NAME
+    value: {{ .Release.Name | quote }}
+
+extraVolumes: |
+  - name: {{ include (print "mail.fullname") . -}}-extra
+    emptyDir: {}
+
+extraVolumeMounts: |
+  - name: {{ include (print "mail.fullname") . -}}-extra
+    mountPath: /var/lib/extra
+
+recreateOnRedeploy: false

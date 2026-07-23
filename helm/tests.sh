@@ -35,6 +35,9 @@ do_the_test() {
     local i="${1}" v
     printf '%s' "${gray}☆☆☆☆☆☆☆☆☆☆${reset} ${orange_emphasis}$i${reset}: ${gray}☆☆☆☆☆☆☆☆☆☆${reset}"
     echo
+    # Validate the values against mail/values.schema.json (and run the usual chart checks)
+    printf '%s' "${emphasis}${lightblue}helm lint... ${reset}"
+    helm lint --strict -f "${i}" mail
     # Test only non-EOL versions
     for v in 1.33.13 1.34.9 1.36.2; do
         printf '%s' "${emphasis}${lightblue}k8s v${v}${reset}${lightblue}... ${reset}"

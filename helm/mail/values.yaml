@@ -11,6 +11,7 @@ fullnameOverride: ""
 
 serviceAccount:
   create: true # Specifies whether a service account should be created
+  labels: {} # Labels to add to the service account
   annotations: {} # Annotations to add to the service account
   name: "" # The name of the service account to use. If not set and create is true, a name is generated using the fullname template
 
@@ -19,8 +20,16 @@ service:
   port: 587
   labels: {}
   annotations: {}
-  # externalTrafficPolicy: Cluster
-  # nodePort:
+  # Additional fields to merge into the Service spec, e.g. loadBalancerIP
+  spec: {}
+  # appProtocol for the SMTP port (applied on Kubernetes >= 1.20), e.g. "smtp"
+  appprotocol: ""
+  # External traffic policy for LoadBalancer / NodePort services: Cluster or Local
+  externalTrafficPolicy: ""
+  # Route traffic arriving at these (node) IPs to the service, e.g. for NodePort setups.
+  # This is what Kubernetes calls "externalIPs"; there is no "nodeIP" field in the Service spec.
+  externalIPs: []
+  # nodePort: # Use a specific nodePort when service.type is NodePort
 
 # StatefulSets now require a headless service
 # https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#limitations
@@ -46,7 +55,7 @@ metrics:
 
   # Warning: Metrics needs a file to work. If you're using this DO NOT override POSTFIX_maillog_file.
   # If you do, metrics *will not work*. If you need to log to file:
-  # - use this file
+  # - use this file *or*
   # - add another file to /etc/rsyslog.d/*.conf
   maillog: /var/log/mail.log
   logrotate:
@@ -80,9 +89,9 @@ metrics:
 # ensures that the Pod is recreated with the new changes.
 #
 # Feel free to disable this but doing so **IS IT YOUR OWN RISK**. By disabling this feature
-# you might run into issues where some changes are not reflected on the Pod. If you experience
-# this with this setting set to `false` the first thing to try out is to restart / delete
-# a pod and let `StatefulSet` recreate it.
+# you might run into issues where some configuration changes are not reflected on the Pod. 
+# If you experience # this with this setting set to `false` the first thing to try out is to
+# restart / delete a pod and let `StatefulSet` recreate it.
 recreateOnRedeploy: true
 
 resources:
@@ -111,6 +120,11 @@ autoscaling:
 nodeSelector: {}
 tolerations: []
 affinity: {}
+
+# Schedule the pod with a specific scheduler / priority class
+schedulerName: ""
+priorityClassName: ""
+
 extraVolumes: []
 extraVolumeMounts: []
 extraInitContainers: []

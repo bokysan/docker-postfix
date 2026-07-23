@@ -14,8 +14,11 @@ metadata:
     {{- with .Values.service.annotations }}{{ toYaml . | nindent 4 }}{{ end }}
 spec:
   type: {{ .Values.service.type }}
-  {{- if .Values.externalTrafficPolicy }}
-  externalTrafficPolicy: {{ .Values.externalTrafficPolicy }}
+  {{- with (.Values.service.externalTrafficPolicy | default .Values.externalTrafficPolicy) }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with .Values.service.externalIPs }}
+  externalIPs: {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- with .Values.service.spec }}{{ toYaml . | nindent 2 }}{{ end }}
   ports:

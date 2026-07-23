@@ -1,0 +1,277 @@
+# Kitchen-sink test: sets (almost) every chart option to make sure they all
+# render and validate against values.schema.json. Mutually-exclusive variants
+# (e.g. persistence.existingClaim) are covered by their own test files.
+replicaCount: 2
+
+image:
+  repository: ghcr.io/bokysan/postfix
+  tag: "edge"
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: my-registry-secret
+
+nameOverride: "postfix-kitchen"
+fullnameOverride: "postfix-kitchensink"
+
+serviceAccount:
+  create: true
+  labels:
+    example.com/component: mail
+  annotations:
+    example.com/service-account: "true"
+  name: "postfix-kitchensink-sa"
+
+service:
+  type: NodePort
+  port: 587
+  nodePort: 30587
+  appprotocol: smtp
+  externalTrafficPolicy: Local
+  externalIPs:
+    - 192.0.2.10
+  spec:
+    sessionAffinity: ClientIP
+  labels:
+    example.com/service: mail
+  annotations:
+    example.com/service: "true"
+
+headlessService:
+  enabled: true
+  labels:
+    example.com/service: mail-headless
+  annotations:
+    example.com/service: "true"
+
+metrics:
+  enabled: true
+  service:
+    labels:
+      example.com/service: metrics
+    annotations:
+      example.com/service: "true"
+  serviceMonitor:
+    enabled: true
+    labels:
+      example.com/monitor: prometheus
+    annotations:
+      example.com/monitor: "true"
+  port: 9154
+  path: /metrics
+  image:
+    repository: boky/postfix-exporter
+    tag: "edge"
+  maillog: /var/log/mail.log
+  logrotate:
+    enabled: true
+    logrotate.conf: |
+      /var/log/mail.log {
+          copytruncate
+          rotate 1
+          daily
+          compress
+          missingok
+          notifempty
+      }
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+recreateOnRedeploy: true
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+  labels:
+    example.com/hpa: mail
+  annotations:
+    example.com/hpa: "true"
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+
+nodeSelector:
+  kubernetes.io/os: linux
+
+tolerations:
+  - key: dedicated
+    operator: Equal
+    value: mail
+    effect: NoSchedule
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: kubernetes.io/hostname
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: mail
+
+schedulerName: default-scheduler
+priorityClassName: high-priority
+
+strategy:
+  type: RollingUpdate
+
+extraVolumes:
+  - name: extra-data
+    emptyDir: {}
+
+extraVolumeMounts:
+  - name: extra-data
+    mountPath: /var/lib/extra
+
+extraInitContainers:
+  - name: init-wait
+    image: busybox
+    command: ["sh", "-c", "true"]
+
+extraEnv:
+  - name: EXTRA_TEST_VARIABLE
+    value: "hello"
+
+extraContainers:
+  - name: sidecar
+    image: busybox
+    command: ["sh", "-c", "sleep infinity"]
+
+deployment:
+  labels:
+    example.com/deployment: mail
+  annotations:
+    example.com/deployment: "true"
+
+pod:
+  securityContext:
+    runAsNonRoot: false
+  labels:
+    example.com/pod: mail
+  annotations:
+    example.com/pod: "true"
+
+container:
+  postfix:
+    securityContext:
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: false
+
+certs:
+  create: true
+  existingSecret: ""
+
+secret:
+  MY_SECRET_VARIABLE: my-secret-value
+
+existingSecret: "my-existing-secret"
+
+mountSecret:
+  enabled: true
+  path: /var/lib/secret
+  data:
+    dkim-private: |
+      -----BEGIN RSA PRIVATE KEY-----
+      not-a-real-key
+      -----END RSA PRIVATE KEY-----
+
+config:
+  general:
+    TZ: "Europe/London"
+    ALLOWED_SENDER_DOMAINS: "example.com example.org"
+    LOG_FORMAT: "plain"
+    RELAYHOST: "[smtp.example.com]:587"
+    RELAYHOST_USERNAME: "relay-user"
+    RELAYHOST_PASSWORD: "relay-pass"
+    MASQUERADED_DOMAINS: "example.com"
+    DKIM_SELECTOR: "mail"
+  postfix:
+    myhostname: "postfix-kitchensink"
+    smtp_tls_security_level: "may"
+    message_size_limit: "52428800"
+  opendkim:
+    RequireSafeKeys: "yes"
+
+dns:
+  policy: "None"
+  nameservers:
+    - 8.8.8.8
+    - 8.8.4.4
+  searches:
+    - default.svc.cluster.local
+    - svc.cluster.local
+    - cluster.local
+  options:
+    - name: ndots
+      value: "5"
+
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  existingClaim: ""
+  size: 2Gi
+  storageClass: "standard"
+
+readinessProbe:
+  initialDelaySeconds: 15
+  periodSeconds: 30
+  failureThreshold: 4
+  timeoutSeconds: 10
+  exec:
+    command:
+      - sh
+      - -c
+      - /scripts/healthcheck.sh
+
+livenessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 3
+  exec:
+    command:
+      - sh
+      - -c
+      - >-
+        ps axf | fgrep -v grep | egrep -q '\{supervisord\}|/usr/bin/supervisord'
+
+startupProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 10
+  exec:
+    command:
+      - sh
+      - -c
+      - >-
+        ps axf | fgrep -v grep | egrep -q '\{supervisord\}|/usr/bin/supervisord'
+
+lifecycle:
+  postStart:
+    exec:
+      command:
+        - sh
+        - -c
+        - echo started
+
+preStopSleepSeconds: 5
+
+terminationGracePeriodSeconds: 180

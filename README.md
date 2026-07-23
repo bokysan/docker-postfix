@@ -634,13 +634,14 @@ Chart configuration is as follows:
 | Property | Default value | Description |
 |----------|---------------|-------------|
 | `replicaCount` | `1` | How many replicas to start |
-| `image.repository` | `boky/postfix` | This docker image repository |
+| `image.repository` | `ghcr.io/bokysan/postfix` | This docker image repository |
 | `image.tag` | *empty* | Docker image tag, by default uses Chart's `AppVersion` |
 | `image.pullPolicy` | `IfNotPresent` | [Pull policy](https://kubernetes.io/docs/concepts/containers/images/#updating-images) for the image |
 | `imagePullSecrets` | `[]` | Pull secrets, if neccessary |
 | `nameOverride` | `""` | Override the helm chart name |
 | `fullnameOverride` | `""` | Override the helm full deployment name |
 | `serviceAccount.create` | `true` | Specifies whether a service account should be created |
+| `serviceAccount.labels` | `{}` | Labels to add to the service account |
 | `serviceAccount.annotations` | `{}` | Annotations to add to the service account |
 | `serviceAccount.name` | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | `service.type` | `ClusterIP` | How is the server exposed |
@@ -649,8 +650,12 @@ Chart configuration is as follows:
 | `service.annotations` | `{}` | Additional service annotations |
 | `service.spec` | `{}` | Additional service specifications |
 | `service.nodePort` | *empty* | Use a specific `nodePort` |
-| `service.nodeIP` | *empty* | Use a specific `nodeIP` |
+| `service.appprotocol` | _empty_ | Set `appProtocol` on the SMTP port (Kubernetes >= 1.20), e.g. `smtp` |
+| `service.externalIPs` | `[]` | Route traffic arriving at these (node) IPs to the service. |
 | `service.externalTrafficPolicy` | *empty* | Set `loadbalancer` [External traffic policy](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip) |
+| `headlessService.enabled` | `true` | Create the headless service required by the `StatefulSet` |
+| `headlessService.labels` | `{}` | Additional headless service labels |
+| `headlessService.annotations` | `{}` | Additional headless service annotations |
 | `resources` | `{}` | [Pod resources](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | `autoscaling.enabled` | `false` | Set to `true` to enable [Horisontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) |
 | `autoscaling.minReplicas` | `1` | Minimum number of replicas |
@@ -663,13 +668,15 @@ Chart configuration is as follows:
 | `nodeSelector` | `{}` | Standard Kubernetes stuff |
 | `tolerations` | `[]` | Standard Kubernetes stuff |
 | `affinity` | `{}` | Standard Kubernetes stuff |
+| `schedulerName` | `""` | Use a specific [scheduler](https://kubernetes.io/docs/tasks/extend-kubernetes/configure-multiple-schedulers/) for the pod |
+| `priorityClassName` | `""` | Set the pod's [priority class](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/) |
 | `certs.create` | `false` | Auto generate TLS certificates for Postfix |
 | `certs.existingSecret` | `""` | Existing secret containing the TLS certificates for Postfix |
-| `extraVolumes` | `[]` | Append any extra volumes to the pod |
-| `extraVolumeMounts` | `[]` | Append any extra volume mounts to the postfix container |
-| `extraInitContainers` | `[]` | Execute any extra init containers on startup |
-| `extraEnv` | `[]` | Add any extra environment variables to the container |
-| `extraContainers` | `[]` | Add extra containers |
+| `extraVolumes` | `[]` | Append any extra volumes to the pod. Either a YAML array or a template string (rendered with `tpl`) |
+| `extraVolumeMounts` | `[]` | Append any extra volume mounts to the postfix container. Either a YAML array or a template string (rendered with `tpl`) |
+| `extraInitContainers` | `[]` | Execute any extra init containers on startup. Either a YAML array or a template string (rendered with `tpl`) |
+| `extraEnv` | `[]` | Add any extra environment variables to the container. Either a YAML array or a template string (rendered with `tpl`) |
+| `extraContainers` | `[]` | Add extra containers. Either a YAML array or a template string (rendered with `tpl`) |
 | `deployment.labels` | `{}` | Additional labels for the statefulset |
 | `deployment.annotations` | `{}` | Additional annotations for the statefulset |
 | `pod.securityContext` | `{}` | Pods's [security context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) |
@@ -692,6 +699,28 @@ Chart configuration is as follows:
 | `recreateOnRedeploy` | `true` | Restart Pods on every helm deployment, to prevent issues with stale configuration(s). |
 | `preStopSleepSeconds` | `0` | Wait for all existing connections to terminate before shutting the container down. See #245 for mode details. |
 | `terminationGracePeriodSeconds` | `120` | Override the timeout for the pod to shutdown |
+| `dns.policy` | `""` | Pod [DNS policy](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy), e.g. `None` |
+| `dns.nameservers` | `[]` | Custom DNS nameservers for the pod |
+| `dns.searches` | `[]` | Custom DNS search domains for the pod |
+| `dns.options` | `[]` | Custom DNS options for the pod |
+| `readinessProbe` | _see `values.yaml`_ | Override the pod's [readiness probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/) |
+| `livenessProbe` | _see `values.yaml`_ | Override the pod's liveness probe |
+| `startupProbe` | _see `values.yaml`_ | Override the pod's startup probe |
+| `lifecycle.postStart` | `{}` | Add a [`postStart` lifecycle handler](https://kubernetes.io/docs/tasks/configure-pod-container/attach-handler-lifecycle-event/) to the postfix container |
+| `metrics.enabled` | `false` | Enable the Prometheus metrics exporter sidecar. See [Metrics](#metrics) below |
+| `metrics.image.repository` | `boky/postfix-exporter` | Metrics exporter image |
+| `metrics.image.tag` | _empty_ | Metrics exporter image tag, by default uses Chart's `AppVersion` |
+| `metrics.port` | `9154` | Port of the metrics exporter |
+| `metrics.path` | `/metrics` | HTTP path of the metrics exporter |
+| `metrics.maillog` | `/var/log/mail.log` | Log file consumed by the exporter. Do not override `POSTFIX_maillog_file` when metrics are enabled |
+| `metrics.logrotate.enabled` | `true` | Enable logrotate for the mail log |
+| `metrics.logrotate.logrotate.conf` | _see `values.yaml`_ | Contents of the logrotate configuration |
+| `metrics.resources` | `{}` | Resources for the metrics exporter container |
+| `metrics.service.labels` | `{}` | Additional metrics service labels |
+| `metrics.service.annotations` | `{}` | Additional metrics service annotations |
+| `metrics.serviceMonitor.enabled` | `false` | Create a Prometheus operator `ServiceMonitor` |
+| `metrics.serviceMonitor.labels` | `{}` | Additional `ServiceMonitor` labels |
+| `metrics.serviceMonitor.annotations` | `{}` | Additional `ServiceMonitor` annotations |
 
 ### Metrics
 
