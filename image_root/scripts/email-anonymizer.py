@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 # This pattern below, should, however match anything that remotely looks like an email.
 # It is too broad, though, as it will match things which are not considered valid email
 # addresses as well. But for our use case, that's OK and more than sufficient.
-EMAIL_CATCH_ALL_PATTERN = '([^ "\\[\\]<]+|".+")@(\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|[A-Za-z0-9]+:.+)\]|([^ \\{}():;>]+(\.[^ \\{}():;]+)*))'
+EMAIL_CATCH_ALL_PATTERN = r'([^ "\[\]<]+|".+")@(\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|[A-Za-z0-9]+:.+)\]|([^ \{}():;>]+(\.[^ \{}():;]+)*))'
 EMAIL_CATCH_ALL = re.compile(EMAIL_CATCH_ALL_PATTERN)
 EMPTY_RESPONSE = json.dumps({})
 
