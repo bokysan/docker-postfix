@@ -3,7 +3,7 @@ ARG ALPINE_VERSION=3.19
 FROM alpine:${ALPINE_VERSION} as build
 
 ARG SASL_XOAUTH2_REPO_URL=https://github.com/tarickb/sasl-xoauth2.git
-ARG SASL_XOAUTH2_GIT_REF=release-0.24
+ARG SASL_XOAUTH2_GIT_REF=release-0.25
 COPY *.patch /build-scripts/
 
 RUN        true && \
