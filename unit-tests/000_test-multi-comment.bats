@@ -71,3 +71,17 @@ fi
 	result=$(grep -E "^demo" /etc/postfix/sasl_passwd | wc -l)
 	[ "$result" == "1" ]
 }
+
+@test "deleting a key that is also commented out removes only that key" {
+      do_postconf -e "smtpd_client_restrictions=permit"
+      do_postconf -# smtpd_client_restrictions
+      printf 'smtpd_client_restrictions = permit_mynetworks,\n    reject_unlisted_sender\n' >> /etc/postfix/main.cf
+      do_postconf -e "mynetworks=127.0.0.0/8"
+      do_postconf -e "myorigin=example.org"
+      expected="$(postconf -n | grep -v '^smtpd_client_restrictions =')"
+
+      do_postconf -# smtpd_client_restrictions
+
+      postfix check
+      [ "$(postconf -n)" == "${expected}" ]
+}
