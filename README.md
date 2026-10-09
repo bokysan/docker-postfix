@@ -677,6 +677,10 @@ variable from OpenDKIM config.
 I strongly suggest using a service such as [dkimvalidator](https://dkimvalidator.com/) to make sure your keys are set up
 properly and your DNS server is serving them with the correct records.
 
+That confirms the keys. To also see whether DMARC lines up and which folder the message reached, send one to
+[Email Spam Tester](https://email-spam-tester.com/): it reports inbox, spam or Promotions at Gmail, Outlook, Yahoo
+and other providers from a single send.
+
 ### Docker Secrets / Kubernetes secrets
 
 As an alternative to passing sensitive information via environment variables, `_FILE` may be appended to some environment variables (see below), causing the initialization script to load the values for those variables from files present in the container. In particular, this can be used to load passwords from Docker secrets stored in `/run/secrets/<secret_name>` files. For example:
