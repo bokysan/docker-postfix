@@ -155,8 +155,8 @@ do_postconf() {
 		fi
 		if [[ "${has_key}" == "1" ]] && [[ "${has_commented_key}" == "1" ]]; then
 			# The key appears in the comment as well as outside the comment.
-			# Delete the key which is outside of the comment
-			sed -i -e "/^${key}\s*=/ { :a; N; /^\s/ba; N; d }" /etc/postfix/main.cf
+			# Delete the key which is outside of the comment (with its continuation lines)
+			postconf -X "${key}"
 		elif [[ "${has_key}" == "1" ]]; then
 			# Comment out the key with postconf
 			postconf -# "${key}" > /dev/null
