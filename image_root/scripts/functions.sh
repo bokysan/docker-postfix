@@ -345,6 +345,17 @@ postfix_enable_chroot() {
 		[[ -e /etc/host.conf ]]     && cp -fpv /etc/host.conf     $POSTFIXD_ETC  || true
 		[[ -e /etc/hosts ]]         && cp -fpv /etc/hosts         $POSTFIXD_ETC  || true
 		[[ -e /etc/passwd ]]        && cp -fpv /etc/passwd        $POSTFIXD_ETC  || true
+		# sasl-xoauth2 refreshes OAuth tokens from inside the smtp chroot, so it needs the CA bundle there.
+		# Copy just the bundle on every start: /var/spool/postfix is often a persistent volume (build-time
+		# copies never reach it), and Debian's configure-instance.sh deletes etc/ssl/certs from the chroot
+		# when it finds a full certificate directory there (such as the one sasl-xoauth2 installs at build time).
+		# Alpine's libcurl looks for /etc/ssl/cert.pem instead, which is a relative symlink to the same bundle.
+		if [[ -e /etc/ssl/certs/ca-certificates.crt ]]; then
+			rm -rf "$POSTFIXD_ETC/ssl/certs"
+			mkdir -p "$POSTFIXD_ETC/ssl/certs"
+			cp -fpv /etc/ssl/certs/ca-certificates.crt "$POSTFIXD_ETC/ssl/certs/"
+			[[ -e /etc/ssl/cert.pem ]] && cp -fPpv /etc/ssl/cert.pem "$POSTFIXD_ETC/ssl/" || true
+		fi
 	) | sed 's/^/        /g'
 }
 

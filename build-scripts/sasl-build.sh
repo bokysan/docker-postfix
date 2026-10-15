@@ -83,10 +83,13 @@ fi
 # This script is run by the update-ca-certificates command to update the list of trusted certificates.
 build_sasl2() {
 	if [[ "${SASL_XOAUTH2_GIT_REF}" =~ [a-z0-9]{40} ]]; then
-		# It's a specific commit that we're after
-		git clone --depth 1 ${SASL_XOAUTH2_REPO_URL} /sasl-xoauth2
+		# It's a specific commit that we're after. A shallow clone only contains the tip of the default
+		# branch, so fetch the commit itself instead.
+		git init /sasl-xoauth2
 		cd /sasl-xoauth2
-		git checkout ${SASL_XOAUTH2_GIT_REF}
+		git remote add origin ${SASL_XOAUTH2_REPO_URL}
+		git fetch --depth 1 origin ${SASL_XOAUTH2_GIT_REF}
+		git checkout FETCH_HEAD
 	else
 		# It's a branch
 		git clone --depth 1 --branch ${SASL_XOAUTH2_GIT_REF} ${SASL_XOAUTH2_REPO_URL} /sasl-xoauth2
