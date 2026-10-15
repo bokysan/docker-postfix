@@ -72,9 +72,9 @@ RUN        true && \
 
 # Set up volumes
 VOLUME     [ \
-    "/etc/rsyslog.d/" \
-    "/etc/rsyslog.d-before/" \
-    "/etc/rsyslog.d-metrics/" \
+    "/etc/rsyslog.d/", \
+    "/etc/rsyslog.d-before/", \
+    "/etc/rsyslog.d-metrics/", \
     "/var/run/", \
     "/var/spool/postfix", \
     "/var/lib/postfix", \
