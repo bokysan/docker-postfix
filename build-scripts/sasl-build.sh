@@ -110,7 +110,9 @@ build_sasl2() {
 		patch -p1 -d .. < /build-scripts/sasl-xoauth2-02.patch
 		cmake -DCMAKE_INSTALL_PREFIX=/ ..
 	else
-		cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+		# Fix for #299
+		# See: https://github.com/tarickb/sasl-xoauth2/issues/100
+		cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_SYSCONFDIR=/etc ..
 	fi
 	make
 	make install
